@@ -1,0 +1,94 @@
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+@inject MyAppState MyAppState
+@inject ProtectedLocalStorage ProtectedLocalStore
+
+<nav class="navbar header-navbar p-0">
+    <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="ml-3 font-weight-bold title pr-4">dMax</div>
+
+    @if (MyAppState.getUsrID() == 0)
+    {
+        <button class="navbar-toggler bg-primary d-block" style="color:aliceblue;margin-left:auto" @onclick="LoginUser">
+            <span class="oi oi-account-login"></span>
+        </button>
+    }
+    else
+    {
+        <em><b>@MyAppState.getUsrName() </b> #@MyAppState.getUsrID()</em>
+        <button class="navbar-toggler bg-primary d-block" style="color: aliceblue;margin-left: auto" @onclick="LogoutUser">
+            <span class="oi oi-account-logout"></span>
+        </button>
+    }
+
+</nav>
+
+@code {
+    private void LoginUser()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+    private void LogoutUser()
+    {
+        //myAppState.setUsr(0, "");
+        MyAppState.LogoutUser();
+        ProtectedLocalStore.DeleteAsync("myAppState");
+        NavigationManager.NavigateTo("/");
+    }
+
+
+    bool isDesktop = true, isToggled = true, isInitialized;
+
+    [Parameter] public string StateCssClass { get; set; }
+    [Parameter] public EventCallback<string> StateCssClassChanged { get; set; }
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JSRuntime.InvokeVoidAsync("windowMinWidthMatchesQuery", DotNetObjectReference.Create(this));
+        isInitialized = true;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    [JSInvokable]
+    public async Task OnWindowMinWidthQueryChanged(bool matchesDesktop)
+    {
+
+        if (!isInitialized || isDesktop != matchesDesktop)
+        {
+            isDesktop = matchesDesktop;
+            if (isInitialized || !isDesktop)
+                await ToggleNavMenu(matchesDesktop);
+        }
+    }
+    async Task OnToggleClick() => await ToggleNavMenu();
+
+    async void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        if (!isDesktop)
+            await ToggleNavMenu(false);
+    }
+
+    async Task ToggleNavMenu(bool? value = null)
+    {
+        var newValue = value ?? !isToggled;
+        isToggled = value ?? !isToggled;
+        string stateCssClass = isToggled ? "expand" : "collapse";
+        if (StateCssClass != stateCssClass)
+        {
+            StateCssClass = stateCssClass;
+            await StateCssClassChanged.InvokeAsync(StateCssClass);
+        }
+    }
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

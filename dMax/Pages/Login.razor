@@ -1,0 +1,91 @@
+﻿@page "/login"
+@inject MyAppState MyAppState
+@inject NavigationManager NavigationManager
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject IJSRuntime JSRuntime;
+
+@using System.ComponentModel.DataAnnotations;
+
+
+<EditForm Model="@loginEditModel" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
+    <DataAnnotationsValidator />
+
+    <DxFormLayout>
+        <DxFormLayoutGroup Caption="Login" ColSpanMd="6">
+            <DxFormLayoutItem Caption="UserID:" ColSpanMd="12">
+                <Template>
+                    <DxSpinEdit @ref="edit" @bind-Value="@loginEditModel.UsrID" />
+                </Template>
+            </DxFormLayoutItem>
+
+
+            <DxFormLayoutItem Caption="Password:" ColSpanMd="12">
+                <Template>
+                    <DxTextBox @bind-Text="@loginEditModel.Pwd" CssClass="my-focus" />
+                </Template>
+            </DxFormLayoutItem>
+
+
+            <DxFormLayoutItem ColSpanMd="12">
+                <Template>
+                    <DxButton SubmitFormOnClick="true" Text="Submit" RenderStyle="@ButtonRenderStyle.Primary" />
+                </Template>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem ColSpanMd="12">
+                <Template>
+                    <ValidationSummary />
+                </Template>
+            </DxFormLayoutItem>
+        </DxFormLayoutGroup>
+    </DxFormLayout>
+</EditForm>
+
+
+@code {
+    private LoginEditModel loginEditModel = new LoginEditModel();
+
+    private int countAttempt;
+    DxSpinEdit<int> edit;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //await JSRuntime.InvokeAsync<string>("focusEditor", "my-focus");   //Calismiyor
+        await Task.Delay(1);
+
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        MyAppStateModel appState = new MyAppStateModel()
+        {
+            UsrID = loginEditModel.UsrID,
+            UsrPwd = loginEditModel.Pwd
+        };
+
+        if (MyAppState.LoginUser(appState))
+        {
+            await ProtectedLocalStorage.SetAsync("myAppState", appState);
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        countAttempt++;
+        if (countAttempt > 3)
+            NavigationManager.NavigateTo("/");
+    }
+
+    private class LoginEditModel
+    {
+        [Required]
+        [Range(101, 100_000, ErrorMessage = "UserID hatalı")]
+        public int UsrID { get; set; }
+
+        [Required]
+        [StringLength(10, ErrorMessage = "{0} uzunluğu {2} - {1}.", MinimumLength = 4)]
+        public string Pwd { get; set; }
+    }
+
+}

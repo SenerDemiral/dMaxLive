@@ -1,0 +1,202 @@
+﻿@page "/bmir"
+
+@inject NavigationManager NavigationManager
+@inject IDataAccess db
+@inject MyAppState MyAppState
+
+<h4><span class="badge badge-info"> BMI Ranges </span></h4>
+
+<DxDataGrid @ref="@grid"
+            Data="@data"
+            KeyFieldName="BmirID"
+            @key="needUpdate"
+            @bind-SingleSelectedDataRow="@SelectedRow"
+            RowEditStart="@(dataItem => SelectedRow = dataItem)"
+            RowUpdatingAsync="@OnRowUpdating"
+            RowInsertingAsync="@OnRowInserting"
+            InitNewRow="@OnInitNewRow"
+            ShowFilterRow="@ShowFilterRow"
+            EditMode="DataGridEditMode.PopupEditForm"
+            InnerComponentSizeMode="SizeMode.Small"
+            ShowGroupPanel="true"
+            ShowPager="true"
+            PagerPageSizeSelectorVisible="true"
+            PagerAllDataRowsItemVisible="true"
+            PageSize="20"
+            PagerAllowedPageSizes=@(new int[] { 5, 10, 20, 40 })
+            PagerNavigationMode=PagerNavigationMode.InputBox
+            CssClass="MyGrid table-striped">
+    <HeaderTemplate>
+        <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+            <DxToolbarItem Text="Filter Row"
+                           BeginGroup="true"
+                           GroupName="FilterRow"
+                           Click="@OnShowFilterRow"
+                           IconCssClass="oi oi-eye" />
+            <DxToolbarItem Text="@(MyAppState.getUsrName())"
+                           BeginGroup="true"
+                           Alignment="ToolbarItemAlignment.Right"
+                           CssClass="font-italic"
+                           Enabled="false" />
+        </DxToolbar>
+    </HeaderTemplate>
+    <Columns>
+        <DxDataGridCommandColumn Width="5em">
+            <HeaderCellTemplate>
+                <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
+            </HeaderCellTemplate>
+            <CellTemplate>
+                <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
+                @*<a class="oi oi-x" @onclick="@(() => Delete(context as WeatherForecast))" href="javascript:void(0);"></a>*@
+            </CellTemplate>
+        </DxDataGridCommandColumn>
+
+        <DxDataGridColumn Field=@nameof(BMIRmodel.BmirID)
+                          Caption="ID"
+                          Width="6em"
+                          EditorVisible="false"
+                          AllowGroup="false" />
+
+        <DxDataGridComboBoxColumn Field=@nameof(BMIRmodel.Sex)
+                                  Caption="Sex"
+                                  Width="3em"
+                                  SortOrder="DataGridColumnSortOrder.Ascending"
+                                  SortIndex="0"
+                                  GroupIndex="@GroupIndex"
+                                  TextFieldName="Ad"
+                                  ValueFieldName="Sex"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  Data="@db.SexList()">
+        </DxDataGridComboBoxColumn>
+
+        @*<DxDataGridComboBoxColumn Field=@nameof(BMIRmodel.Sex)
+                                      Caption="Sex"
+                                      Width="3em"
+                                      GroupIndex="1"
+                                      SortOrder="DataGridColumnSortOrder.Ascending"
+                                      SortIndex="0"
+                                      TextAlignment="DataGridTextAlign.Center"
+                                      Data="@(new string[] { "E", "K" })">
+                <DisplayTemplate>
+                    @{
+                        <span>@((context as BMIRmodel).Sex)</span>
+                    }
+                </DisplayTemplate>
+
+                <EditTemplate>
+                    @{
+                        var cellEditContext = (CellEditContext)context;
+                        var currentCellValue = (string)cellEditContext?.CellValue;
+                        <DxComboBox Data="@db.SexList()"
+                                    Value="@currentCellValue"
+                                    TextFieldName="Ad"
+                                    ValueFieldName="Sex"
+                                    ValueChanged="@((string x) => cellEditContext.OnChanged(x))">
+
+                        </DxComboBox>
+                    }
+                </EditTemplate>
+            </DxDataGridComboBoxColumn>*@
+
+        <DxDataGridSpinEditColumn Field=@nameof(BMIRmodel.Rng)
+                                  Caption="BMI < Range"
+                                  Width="10em"
+                                  SortOrder="DataGridColumnSortOrder.Ascending"
+                                  SortIndex="1"
+                                  DisplayFormat="F1"
+                                  AllowGroup="false" />
+
+        <DxDataGridColumn Field=@nameof(BMIRmodel.Ad)
+                          Caption="Ad"
+                          AllowGroup="false">
+        </DxDataGridColumn>
+
+        <DxDataGridSpinEditColumn Field=@nameof(BMIRmodel.Nrm)
+                                  AllowGroup="false"
+                                  DisplayFormat="F1"
+                                  Caption="BMI Normal" />
+
+        <DxDataGridSpinEditColumn Field=@nameof(BMIRmodel.Hdf)
+                                  AllowGroup="false"
+                                  DisplayFormat="F1"
+                                  Caption="BMI Hedef" />
+
+    </Columns>
+
+</DxDataGrid>
+
+
+@code {
+    private int DtID { get; set; }
+    Guid needUpdate;
+
+    List<BMIRmodel> data;
+    BMIRmodel SelectedRow;
+    DxDataGrid<BMIRmodel> grid;
+    bool ShowFilterRow = false;
+    //public List<SexModel> SexList { get; set; }
+    //private List<SexModel> SexList { get { return db.SexList(); } }
+    //private List<KTmodel> KtList { get; set; }
+    //private List<KTSLmodel> KtLookup { get; set; }
+
+    private int GroupIndex { get; set; } = -1;
+
+    void OnShowFilterRow(ToolbarItemClickEventArgs e)
+    {
+        ShowFilterRow = !ShowFilterRow;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        DtID = MyAppState.getUsrID();
+        string sql = $"select * from BMIR where DtID = {DtID}";
+        data = await db.LoadData<BMIRmodel, dynamic>(sql, new { });
+    }
+    /*
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await Task.Delay(1);
+
+                DtID = MyAppState.getUsrID();
+                string sql = $"select * from BMIR where DtID = {DtID}";
+                data = await db.LoadData<BMIRmodel, dynamic>(sql, new { });
+
+                //KtList = await db.LoadData<KTmodel, dynamic>($"select KtID, Ad from KT where DtID = {DtID}", new { });
+                //KtLookup = await db.LoadData<KTSLmodel, dynamic>($"select KtID, Info from KT_SL({DtID})", new { });
+
+                //if (data.Count > 0)
+                //    SelectedRow = data?.First();
+
+                //await InvokeAsync(StateHasChanged);
+                //GroupIndex = 0;
+                //needUpdate = Guid.NewGuid();
+                //await grid.Refresh();
+                await InvokeAsync(StateHasChanged);
+            }
+        }*/
+
+    async Task OnRowUpdating(BMIRmodel dataItem, IDictionary<string, object> newValue)
+    {
+        await db.UpdateRec(dataItem, newValue);
+    }
+
+    Task OnInitNewRow(Dictionary<string, object> values)
+    {
+        // values.Add("DgmTrh", DateTime.Today);
+        return Task.CompletedTask;
+    }
+
+    async Task OnRowInserting(IDictionary<string, object> newValue)
+    {
+        if (newValue.Count > 0)
+        {
+            newValue.Add("DtID", DtID);
+            var dataItem = await db.InsertRec<BMIRmodel>(newValue);
+            data.Add(dataItem);
+            SelectedRow = dataItem;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+}

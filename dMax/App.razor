@@ -1,0 +1,76 @@
+﻿@inject MyAppState myAppState
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject NavigationManager NavigationManager
+
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p>Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+
+@code{
+    
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        MyAppStateModel appState;
+        try
+        {
+            ProtectedBrowserStorageResult<MyAppStateModel> toto = await ProtectedLocalStorage.GetAsync<MyAppStateModel>("myAppState");
+
+            if (toto.Success)
+                appState = toto.Value;
+            else
+            {
+                appState = new MyAppStateModel();
+                // Login olmadan kayit etme
+                //await ProtectedLocalStore.SetAsync("myAppState", appState);
+            }
+
+            if (!myAppState.LoginUser(appState))
+                NavigationManager.NavigateTo("/");  // Login olamadiysa
+
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("LocalStore silindi..");
+            await ProtectedLocalStorage.DeleteAsync("myAppState");
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+            await base.SetParametersAsync(parameters);
+        }
+    }
+
+    /*
+    protected override async Task OnInitializedAsync()
+    {
+        // Do not use ServerPrerender, o zaman buraya 2 kere geliyor
+        // OnAfterRenderAsync kullanma. awaitible oldugu icin orayi gecip baska birsey yapabiliyor. SagClick ile yeni tab actiginda
+        try
+        {
+            MyAppStateModel appState = await protectedLocalStore.GetAsync<MyAppStateModel>("myAppState");
+            if (appState == null)
+            {
+                appState = new MyAppStateModel();
+                // Login olmadan kayit etme
+                //await ProtectedLocalStore.SetAsync("myAppState", appState);
+            }
+            if (!myAppState.LoginUser(appState))
+                NavigationManager.NavigateTo("/");  // Login olamadiysa
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("LocalStore silindi..");
+            await protectedLocalStore.DeleteAsync("myAppState");
+        }
+    }*/
+}

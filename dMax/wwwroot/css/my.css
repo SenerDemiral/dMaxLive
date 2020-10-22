@@ -1,0 +1,42 @@
+﻿textarea {
+    font-family: "Lucida Console", monospace;
+}
+
+.MyGrid .EditForm {
+    background-color: azure;
+}
+
+.MyGrid .HidePreview + tr {
+    display: none;
+}
+
+.form-control[readonly] {
+    background-color: white;
+}
+
+.custom-popup .custom-header {
+    padding: 0.3rem 0;
+    font-size: 1.4rem;
+    justify-content: right;
+    display: flex;
+    align-items: center;
+}
+
+    .custom-popup .custom-header .close-button {
+        font-size: 0.9rem;
+        margin-left: auto;
+        margin-bottom: 0.2rem;
+        margin-right: 0.9rem;
+    }
+
+.MyGrid thead > tr:first-child th { /* all headers */
+    color: orangered;
+}
+
+.MyGrid th {
+    text-align: center;
+}
+
+.MyGrid .dxbs-popup-fixed-width {
+    max-width: 700px;
+}

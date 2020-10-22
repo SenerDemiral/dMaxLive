@@ -1,0 +1,31 @@
+﻿@page "/uploaddocument/{dtid:int}/{id:int}"
+@inject NavigationManager NavigationManager
+
+<button type="button" id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Düküman Seç</button>
+
+<DxUpload Name="myFile"
+          Visible="@UploadVisible"
+          ExternalSelectButtonCssSelector="#overviewDemoSelectButton"
+          MaxFileSize="400000"
+          UploadUrl="@GetUploadUrl($"api/Upload/UploadDocumentFile/{@dtid}/{@id}/")"
+          SelectedFilesChanged="@SelectedFilesChanged">
+</DxUpload>
+
+
+@code {
+    [Parameter] public int dtid { get; set; }
+    [Parameter] public int id { get; set; }
+    bool UploadVisible { get; set; } = false;
+
+    protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        UploadVisible = files.ToList().Count > 0;
+
+        InvokeAsync(StateHasChanged);
+    }
+    protected string GetUploadUrl(string url)
+    {
+        return NavigationManager.ToAbsoluteUri(url).AbsoluteUri;
+    }
+
+}

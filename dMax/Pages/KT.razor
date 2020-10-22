@@ -1,0 +1,459 @@
+﻿@page "/kt"
+
+@inject NavigationManager NavigationManager
+@inject IDataAccess db
+@inject MyAppState MyAppState
+@using System.Text.Json;
+
+<h4><span class="badge badge-info"> Kişiler </span></h4>
+
+@*<style>
+        .MyGrid .EditForm {
+            background-color: azure;
+        }
+
+        .MyGrid .HidePreview + tr {
+            display: none;
+        }
+    </style>*@
+
+@if (data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <DxDataGrid @ref="@grid"
+                Data="@data"
+                KeyFieldName="KtID"
+                ShowFilterRow="@ShowFilterRow"
+                InnerComponentSizeMode="SizeMode.Small"
+                @bind-SingleSelectedDataRow="@SelectedRow"
+                EditMode="DataGridEditMode.EditForm"
+                RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
+                RowInsertStart="@(() => OnRowEditStarting(null))"
+                RowEditCancel="@(() => ChangeToolbarEnabled(true))"
+                ShowPager="true"
+                PagerPageSizeSelectorVisible="true"
+                PagerAllDataRowsItemVisible="false"
+                PagerAllowedPageSizes=@(new int[] {5,10,20,40,100})
+                PageSize="5"
+                PagerNavigationMode=PagerNavigationMode.InputBox
+                HtmlRowDecoration="@OnHtmlRowDecoration"
+                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+                SelectionMode="DataGridSelectionMode.SingleSelectedDataRow"
+                ShowGroupPanel="true"
+                ShowDetailRow="true"
+                CssClass="MyGrid table-striped">
+        <HeaderTemplate>
+            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+                <DxToolbarItem Text="Filter Row"
+                               BeginGroup="true"
+                               Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
+                               IconCssClass="oi oi-eye"
+                               Enabled="@Enabled" />
+                <DxToolbarItem Text="@(MyAppState.getUsrName())"
+                               BeginGroup="true"
+                               Alignment="ToolbarItemAlignment.Right"
+                               CssClass="font-italic"
+                               Enabled="false" />
+            </DxToolbar>
+        </HeaderTemplate>
+        <Columns>
+            <DxDataGridCommandColumn>
+                <HeaderCellTemplate>
+                    <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
+                </HeaderCellTemplate>
+                <CellTemplate>
+                    <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
+                    @*<a class="oi oi-x" @onclick="@(() => Delete(context as WeatherForecast))" href="javascript:void(0);"></a>*@
+                </CellTemplate>
+            </DxDataGridCommandColumn>
+
+
+            <DxDataGridColumn Field=@nameof(KTmodel.KtID)
+                              Caption="ID"
+                              TextAlignment="DataGridTextAlign.Center"
+                              AllowGroup="false"
+                              EditorVisible="false">
+            </DxDataGridColumn>
+
+            <DxDataGridColumn Field=@nameof(KTmodel.KtID)
+                              Caption=" "
+                              TextAlignment="DataGridTextAlign.Center"
+                              AllowFilter="false"
+                              AllowGroup="false"
+                              EditorVisible="false">
+                <DisplayTemplate>
+                    @{
+                            int id = (context as KTmodel).KtID;
+                        <NavLink class="navbar-dark" href="@($"kh/{id}/0")">
+                            <span class="badge badge-primary">H</span>
+                        </NavLink>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+
+            <DxDataGridColumn Field=@nameof(KTmodel.KtID)
+                              Caption=" "
+                              TextAlignment="DataGridTextAlign.Center"
+                              AllowFilter="false"
+                              AllowGroup="false"
+                              EditorVisible="false">
+                <DisplayTemplate>
+                    @{
+                            int id = (context as KTmodel).KtID;
+                        <NavLink class="navbar-dark" href="@($"fh/{id}/0")">
+                            <span class="badge badge-primary">D</span>
+                        </NavLink>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+
+            <DxDataGridColumn Field=@nameof(KTmodel.KtID)
+                              Caption=" "
+                              TextAlignment="DataGridTextAlign.Center"
+                              AllowFilter="false"
+                              AllowGroup="false"
+                              EditorVisible="false">
+                <DisplayTemplate>
+                    @{
+                            int id = (context as KTmodel).KtID;
+                        <NavLink class="navbar-dark" href="@($"kh/{id}/-1")" target="_blank">
+                            <span class="badge badge-primary">R</span>
+                        </NavLink>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+
+            <DxDataGridDateEditColumn Field=@nameof(KTmodel.EXD)
+                                      Caption="Kayıt"
+                                      AllowGroup="false"
+                                      Width="5em"
+                                      DisplayFormat="dd.MM.yyyy" />
+
+
+            <DxDataGridColumn Field=@nameof(KTmodel.Ad)
+                              Caption="Ad"
+                              AllowGroup="false" />
+
+            <DxDataGridColumn Field=@nameof(KTmodel._Sex)
+                              Caption="Sex"
+                              Width="3em"
+                              TextAlignment="DataGridTextAlign.Center" />
+
+            <DxDataGridDateEditColumn Field=@nameof(KTmodel.DgmTrh)
+                                      Caption="DğmTrh"
+                                      AllowGroup="false"
+                                      Width="5em"
+                                      DisplayFormat="dd.MM.yyyy" />
+
+            <DxDataGridSpinEditColumn Field=@nameof(KTmodel.BoyCm)
+                                      AllowGroup="false"
+                                      TextAlignment="DataGridTextAlign.Center"
+                                      Caption="BoyCm"
+                                      DisplayFormat="###"
+                                      EditorVisible="false" />
+            <DxDataGridSpinEditColumn Field=@nameof(KTmodel.KiloKg)
+                                      AllowGroup="false"
+                                      TextAlignment="DataGridTextAlign.Center"
+                                      Caption="KiloKg"
+                                      EditorVisible="false"
+                                      DisplayFormat="###.#" />
+
+            <DxDataGridColumn Field=@nameof(KTmodel.Tel)
+                              Caption="Tel"
+                              AllowGroup="false" />
+
+            <DxDataGridColumn Field=@nameof(KTmodel.Mail)
+                              Caption="eMail"
+                              AllowGroup="false" />
+
+            <DxDataGridCheckBoxColumn Field=@nameof(KTmodel.MailOK)
+                                      ValueUnchecked="0"
+                                      ValueChecked="1"
+                                      ValueIndeterminate="-1"
+                                      FilterTextChecked="Evt"
+                                      FilterTextUnchecked="Hyr"
+                                      FilterTextIndeterminate="Blrsz"
+                                      AllowGroup="false"
+                                      Caption="eMail?" />
+            <DxDataGridCheckBoxColumn Field=@nameof(KTmodel.SmsOK)
+                                      ValueUnchecked="0"
+                                      ValueChecked="1"
+                                      ValueIndeterminate="-1"
+                                      FilterTextChecked="Evt"
+                                      FilterTextUnchecked="Hyr"
+                                      FilterTextIndeterminate="Blrsz"
+                                      AllowGroup="false"
+                                      Caption="SMS?" />
+        </Columns>
+
+        <DetailRowTemplate>
+            @{
+                <div style="display:grid; grid-template-columns: 80px 1fr">
+                    <img src="uploads/@(context.DtID)/@(context.KtID).jpg" style="max-width:76px; max-height:100px; height:auto; width:auto;" />
+                    <textarea readonly style="width:inherit; border:none;  white-space: pre-wrap;">@context.Info</textarea>
+                </div>
+            }
+        </DetailRowTemplate>
+
+        <EditFormTemplate>
+            <EditForm Model="@EditContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <DxFormLayout CaptionPosition="CaptionPosition.Horizontal">
+
+                    <DxFormLayoutItem Caption="Ad" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxTextBox @bind-Text="@EditContext.Ad" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Cinsiyet" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxComboBox @bind-Value="@EditContext.Sex"
+                                        Data="@(new string[] { "E", "K" })" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="DğmTrh" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxDateEdit @bind-Date="@EditContext.DgmTrh"
+                                        PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker"
+                                        ScrollPickerFormat="dd MMM yyyy"
+                                        Format="dd.MM.yyyy"
+                                        DisplayFormat="dd.MM.yyyy" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="BoyCm" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxSpinEdit @bind-Value="@EditContext.BoyCm" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="eMail" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxTextBox @bind-Text="@EditContext.Mail" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Tel" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxTextBox @bind-Text="@EditContext.Tel" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="MailOK" ColSpanMd="3" Context="FormLayoutContext">
+                        <Template>
+                            <DxCheckBox @bind-Checked="@EditContext.MailOK"
+                                        ValueChecked="1" ValueUnchecked="0" ValueIndeterminate="-1" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="SmsOK" ColSpanMd="3" Context="FormLayoutContext">
+                        <Template>
+                            <DxCheckBox @bind-Checked="@EditContext.SmsOK" AllowIndeterminateStateByClick="false"
+                                        ValueChecked="1" ValueUnchecked="0" ValueIndeterminate="-1" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Photo" ColSpanMd="3" Context="FormLayoutContext">
+                        <Template>
+                            @if (EditContext.KtID > 0)
+                                {
+                                <UploadPhoto dtid="@EditContext.DtID" id="@EditContext.KtID" />
+                                }
+                        </Template>
+                    </DxFormLayoutItem>
+
+
+                    <DxFormLayoutItem Caption="Info" ColSpanMd="12" Context="FormLayoutContext">
+                        <Template>
+                            <DxMemo @bind-Text="@EditContext.Info"
+                                    Rows="5"
+                                    ResizeMode="MemoResizeMode.VerticalAndHorizontal"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                        <Template>
+                            <ValidationSummary />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                        <Template>
+                            <div class="text-right">
+                                <DxButton RenderStyle="@ButtonRenderStyle.Link" SubmitFormOnClick="true" Text="Update" />
+                                <DxButton RenderStyle="@ButtonRenderStyle.Link" @onclick="@OnCancelButtonClick" Text="Cancel" />
+                            </div>
+                        </Template>
+                    </DxFormLayoutItem>
+
+                </DxFormLayout>
+            </EditForm>
+        </EditFormTemplate>
+    </DxDataGrid>
+
+}
+
+
+@code {
+    List<KTmodel> data;
+    DxDataGrid<KTmodel> grid;
+    bool Enabled = true;
+    bool ShowFilterRow = false;
+    KTmodel SelectedRow;
+    FormEditContext EditContext = null;
+    int DtID = -1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DtID = MyAppState.getUsrID();
+        string sql = $"select * from KT where DtID = {DtID}";
+        data = await db.LoadData<KTmodel, dynamic>(sql, new { });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await grid.SetDataRowSelectedByKey(1198, true);
+            grid.
+        }
+    }
+
+    /*
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await Task.Delay(1);    // Use await Task.Delay(1) or await Task.Yield(); to flush changes (is loading ... kullaniyorsan)
+                int usrID = MyAppState.getUsrID();
+                //string sql = $"select KhID, KtID, DtID, EXD, BoyCm, KiloKg, IdealKg, KasKg, YagKg, SiviKg, Info, BMI from KH where KtID = {KtID} and DtID = {usrID}";
+                string sql = $"select * from KT where DtID = {usrID}";
+                data = await db.LoadData<KTmodel, dynamic>(sql, new { });
+                //SetSelection();
+
+                //StateHasChanged();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    */
+    void ChangeToolbarEnabled(bool enabled)
+    {
+        Enabled = enabled;
+        //StateHasChanged();
+        InvokeAsync(StateHasChanged);
+    }
+
+    void SetSelection()
+    {
+        if (data.Count > 0)
+            SelectedRow = data?.First();
+    }
+
+    void OnRowEditStarting(KTmodel dataItem)
+    {
+        ChangeToolbarEnabled(false);
+
+        if (dataItem == null)
+        {
+            EditContext = new FormEditContext(dataItem);
+        }
+        else
+        {
+            SelectedRow = dataItem;
+            string jsonString = JsonSerializer.Serialize(dataItem);
+            EditContext = JsonSerializer.Deserialize<FormEditContext>(jsonString);
+            EditContext.DataItem = dataItem;
+        }
+
+        //EditContext = new FormEditContext(dataItem);
+
+        EditContext.StateHasChanged += () =>
+        {
+            InvokeAsync(StateHasChanged);
+        };
+    }
+    void OnCancelButtonClick()
+    {
+        EditContext = null;
+        grid.CancelRowEdit();
+    }
+
+    async Task HandleValidSubmit()
+    {
+        Dictionary<string, object> newValue = new Dictionary<string, object>();
+
+        db.MyTableFieldsCopy<FormEditContext, KTmodel>(EditContext, EditContext.DataItem, newValue);  // src -> dst and add to newValue
+
+        if (EditContext.IsNewRow)
+        {
+            newValue.Add("DtID", DtID);
+            var dataItem = await db.InsertRec<KTmodel>(newValue);
+            data.Add(dataItem);
+            SelectedRow = dataItem;
+        }
+        else
+            await db.UpdateRec(SelectedRow, newValue);
+
+        EditContext = null;
+        await grid.CancelRowEdit();
+
+        //await ReadSelectedRow();
+        //var rec = await db.LoadRec<KTmodel, dynamic>("select EXD, Yas, BMI, BedenYogunlugu from KT where KtID = @KtID", new { KtID = SelectedRow.KtID });
+        await grid.Refresh();
+    }
+
+    void OnHtmlRowDecoration(DataGridHtmlRowDecorationEventArgs<KTmodel> eventArgs)
+    {
+        switch (eventArgs.RowType)
+        {
+            case DataGridHtmlRowDecorationType.DataRow:
+                break;
+            case DataGridHtmlRowDecorationType.EditFormRow:
+                eventArgs.CssClass += " EditForm HidePreview";
+                // eventArgs.Style = " background-color:azure;";
+                eventArgs.Attributes.Add("data-editform", "aaaaa");
+                break;
+            default:
+                eventArgs.CssClass += " table-reflow";
+                break;
+        }
+    }
+
+    void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<KTmodel> eventArgs)
+    {
+        if (eventArgs.FieldName == nameof(KTmodel.Ad))
+        {
+            //eventArgs.Style += " font-weight:500;";
+            eventArgs.CssClass += " font-weight-bold";
+        }
+    }
+
+    class FormEditContext : KTmodel
+    {
+        public KTmodel DataItem { get; set; }
+        public bool IsNewRow { get; set; }
+        public Action StateHasChanged { get; set; }
+
+        public FormEditContext()    // jsonDeserialize icin gerekli
+        {
+        }
+
+        public FormEditContext(KTmodel dataItem)
+        {
+            DataItem = dataItem;
+            if (DataItem == null)
+            {
+                DataItem = new KTmodel();
+                IsNewRow = true;
+            }
+        }
+    }
+
+
+}

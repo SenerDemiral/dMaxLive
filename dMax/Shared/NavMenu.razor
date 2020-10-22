@@ -1,0 +1,47 @@
+﻿@inject MyAppState MyAppState
+@implements IDisposable
+
+
+<DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
+    <Nodes>
+        <DxTreeViewNode NavigateUrl="" Text="Genel Bakış"></DxTreeViewNode>
+        @*<DxTreeViewNode NavigateUrl="datagrid" Text="Data Grid"></DxTreeViewNode>*@
+        @if (usrID > 0 && usrID < 1000)
+        {
+            <DxTreeViewNode NavigateUrl="kt" Text="Kişiler" BadgeText="K"></DxTreeViewNode>
+            <DxTreeViewNode NavigateUrl="kh/0/0" Text="Hareketler" BadgeText="H"></DxTreeViewNode>
+            <DxTreeViewNode NavigateUrl="bmir" Text="BMI Ranges" BadgeText="B"></DxTreeViewNode>
+
+        }
+    </Nodes>
+</DxTreeView>
+
+@code{
+    private int usrID = 0;
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to the StateChanged EventHandler
+        MyAppState.StateChanged += OnMyStateStateChanged;
+        usrID = MyAppState.getUsrID();
+    }
+
+    void OnMyStateStateChanged(object sender, EventArgs e)
+    {
+        usrID = MyAppState.getUsrID();
+        StateHasChanged();
+        //InvokeAsync(() =>
+        //{
+        //    StateHasChanged();
+        //});
+    }
+
+    void IDisposable.Dispose()
+    {
+        // When this control is disposed of
+        // unsubscribe from the StateChanged EventHandler
+        MyAppState.StateChanged -= OnMyStateStateChanged;
+    }
+
+
+}

@@ -1,0 +1,299 @@
+﻿@page "/fh/{KtID:int}/{KhID:int}"
+
+@inject NavigationManager NavigationManager
+@inject IDataAccess db
+@inject MyAppState MyAppState
+
+<h4><span class="badge badge-info"> Dökümanlar </span></h4>
+
+<DxDataGrid @ref="@grid"
+            Data="@data"
+            KeyFieldName="FhID"
+            @bind-SingleSelectedDataRow="@SelectedRow"
+            RowEditStart="@(dataItem => SelectedRow = dataItem)"
+            RowUpdatingAsync="@OnRowUpdating"
+            RowInsertingAsync="@OnRowInserting"
+            InitNewRow="@OnInitNewRow"
+            RowEditCancel="@(async() => await OnRowEditCancel())"
+            ShowFilterRow="@ShowFilterRow"
+            EditMode="DataGridEditMode.PopupEditForm"
+            InnerComponentSizeMode="SizeMode.Small"
+            ShowPager="true"
+            PagerPageSizeSelectorVisible="true"
+            PagerAllDataRowsItemVisible="false"
+            PagerAllowedPageSizes=@(new int[] {5,10,20,40})
+            PagerNavigationMode=PagerNavigationMode.InputBox
+            CssClass="MyGrid">
+    <HeaderTemplate>
+        <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+            @*<DxToolbarItem Text="New"
+                               BeginGroup="true"
+                               Click="@OnAddNewClick"
+                               IconCssClass="oi oi-plus"
+                               Enabled="@Enabled" />
+                <DxToolbarItem Text="Edit"
+                               Click="@OnEditClick"
+                               IconCssClass="oi oi-pencil"
+                               Enabled="@Enabled" />*@
+            @*<DxToolbarItem Text="Detay"
+                               BeginGroup="true"
+                               Click="@OnDetayClick"
+                               IconCssClass="oi oi-arrow-thick-right"
+                               Enabled="@Enabled" />
+                <DxToolbarItem Text="Upload"
+                               BeginGroup="true"
+                               Click="@OnUploadClick"
+                               IconCssClass="oi oi-data-transfer-upload"
+                               Enabled="@Enabled" />*@
+            @if (KtID != 0)
+            {
+                <DxToolbarItem Text="@ktRec?.Ad"
+                               BeginGroup="true"
+                               Alignment="ToolbarItemAlignment.Left"
+                               CssClass="font-weight-bold font-italic text-light bg-dark"
+                               Enabled="false" />
+
+            }
+            <DxToolbarItem Text="Filter Row"
+                           BeginGroup="true"
+                           GroupName="FilterRow"
+                           Click="@OnShowFilterRow"
+                           IconCssClass="oi oi-eye"
+                           Enabled="@Enabled" />
+            <DxToolbarItem Text="@(MyAppState.getUsrName())"
+                           BeginGroup="true"
+                           Alignment="ToolbarItemAlignment.Right"
+                           CssClass="font-italic"
+                           Enabled="false" />
+
+        </DxToolbar>
+    </HeaderTemplate>
+    <Columns>
+        <DxDataGridCommandColumn Width="3em">
+            <HeaderCellTemplate>
+                <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
+            </HeaderCellTemplate>
+            <CellTemplate>
+                <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
+                @*<a class="oi oi-x" @onclick="@(() => Delete(context as WeatherForecast))" href="javascript:void(0);"></a>*@
+            </CellTemplate>
+        </DxDataGridCommandColumn>
+
+        <DxDataGridColumn Field=@nameof(FHmodel.FhID)
+                          Caption="ID"
+                          Width="6rem"
+                          EditorVisible="false" />
+
+        <DxDataGridColumn Field=@nameof(FHmodel.Path)
+                          Width="3em"
+                          TextAlignment="DataGridTextAlign.Center"
+                          Caption="Link"
+                          EditorVisible="false">
+            <DisplayTemplate>
+                @{
+                    string fn = (context as FHmodel).Path;
+                    <NavLink class="navbar-dark" href="@fn" target="_blank">
+                        <span class="oi oi-data-transfer-download" aria-hidden="true"></span>
+                    </NavLink>
+                }
+            </DisplayTemplate>
+        </DxDataGridColumn>
+
+        <DxDataGridDateEditColumn Field=@nameof(FHmodel.EXD)
+                                  Caption="Trh"
+                                  Width="8em"
+                                  DisplayFormat="dd.MM.yy HH:mm"
+                                  EditorVisible="false" />
+
+        <DxDataGridColumn Field=@nameof(FHmodel.Ad)
+                          Caption="Ad">
+        </DxDataGridColumn>
+
+        <DxDataGridColumn Field=@nameof(FHmodel.Ext)
+                          Caption="Ext"
+                          Width="6em"
+                          EditorVisible="false">
+        </DxDataGridColumn>
+
+
+        <DxDataGridColumn Field=@nameof(FHmodel.FhID)
+                          Caption=" "
+                          Visible="false"
+                          EditorVisible="true">
+            <EditTemplate>
+                @{
+                    var cellEditContext = (CellEditContext)context;
+                    int currentCellValue = (int)cellEditContext.CellValue;
+                    //var DtID = (context as FHmodel).DtID; // Calismiyor
+                    var DtID = (cellEditContext.DataItem as FHmodel).DtID;
+
+                    if (currentCellValue > 0)
+                    {
+                        <UploadDocument dtid="@DtID" id="@currentCellValue" />
+                    }
+                }
+            </EditTemplate>
+        </DxDataGridColumn>
+
+    </Columns>
+
+</DxDataGrid>
+
+@*<DxButton Click="OnButtonClick">Deneme</DxButton>*@
+
+
+@code {
+    [Parameter]
+    public int TblID { get; set; }
+    [Parameter]
+    public int KtID { get; set; }
+    [Parameter]
+    public int KhID { get; set; }
+
+    private int DtID = 0;
+    KTmodel ktRec;
+
+    List<FHmodel> data;
+    FHmodel SelectedRow;
+    DxDataGrid<FHmodel> grid;
+    bool Enabled = true;
+    bool ShowFilterRow = false;
+
+    async Task OnEditClick()
+    {
+        await grid.StartRowEdit(SelectedRow);
+        if (Enabled)
+            ChangeToolbarEnabled(false);
+    }
+    async Task OnAddNewClick()
+    {
+        await grid.StartRowEdit(null);
+        if (Enabled)
+            ChangeToolbarEnabled(false);
+    }
+    Task OnInitNewRow(Dictionary<string, object> values)
+    {
+        // values.Add("DgmTrh", DateTime.Today);
+        return Task.CompletedTask;
+    }
+
+    Task OnRowEditCancel()
+    {
+        ChangeToolbarEnabled(true);
+        //await ReadSelectedRow();
+        return Task.CompletedTask;
+
+    }
+    void ChangeToolbarEnabled(bool enabled)
+    {
+        Enabled = enabled;
+        StateHasChanged();
+    }
+    void SetSelection()
+    {
+        if (data.Count > 0)
+            SelectedRow = data?.First();
+    }
+    void OnShowFilterRow(ToolbarItemClickEventArgs e)
+    {
+        ShowFilterRow = !ShowFilterRow;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        string sql;
+        DtID = MyAppState.getUsrID();
+        if (KhID == 0)
+            sql = $"select * from FH where KtID = {KtID} and DtID = {DtID}";
+        else
+            sql = $"select * from FH where KhID = {KhID} and DtID = {DtID}";
+
+        data = await db.LoadData<FHmodel, dynamic>(sql, new { });
+
+        ktRec = await db.LoadRec<KTmodel, dynamic>("select Ad from KT where KtID = @KtID", new { KtID = KtID });
+        if (KhID != 0)
+        {
+            ktRec.Ad += $" H:{KhID}";
+        }
+    }
+    /*
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await Task.Delay(1);
+                string sql;
+                //string sql = $"select * from FH where TblID = {TblID} and DtID = {DtID}";
+                if (KhID == 0)
+                    sql = $"select * from FH where KtID = {KtID} and DtID = {DtID}";
+                else
+                    sql = $"select * from FH where KhID = {KhID} and DtID = {dtID}";
+
+                data = await db.LoadData<FHmodel, dynamic>(sql, new { });
+                //SetSelection();
+                ktRec = await db.LoadRec<KTmodel, dynamic>("select Ad from KT where KtID = @KtID", new { KtID = KtID });
+                if (KhID != 0)
+                {
+                    ktRec.Ad += $" H:{KhID}";
+                }
+                StateHasChanged();
+            }
+        }
+    */
+    async Task OnRowUpdating(FHmodel dataItem, IDictionary<string, object> newValue)
+    {
+        SelectedRow = dataItem;
+
+        await db.UpdateRec(dataItem, newValue);
+        ChangeToolbarEnabled(true);
+
+        await ReadSelectedRow();
+
+    }
+
+    async Task OnRowInserting(IDictionary<string, object> newValue)
+    {
+        if (newValue.Count > 0)
+        {
+            newValue.Add("TblID", TblID);
+            newValue.Add("DtID", DtID);
+            newValue.Add("KtID", KtID);
+            newValue.Add("KhID", KhID);
+            var dataItem = await db.InsertRec<FHmodel>(newValue);
+            data.Add(dataItem);
+            SelectedRow = dataItem;
+            await ReadSelectedRow();
+            StateHasChanged();
+        }
+        ChangeToolbarEnabled(true);
+    }
+
+    async Task ReadSelectedRow()
+    {
+        var rec = await db.LoadRec<FHmodel, dynamic>("select * from FH where FhID = @FhID", new { FhID = SelectedRow.FhID });
+        SelectedRow.Ext = rec.Ext;
+        SelectedRow.Path = rec.Path;
+        SelectedRow.EXD = rec.EXD;
+        await grid.Refresh();
+    }
+
+    //void OnDetayClick()
+    //{
+    //    string fileName = $"uploads/{SelectedRow.FhID}{SelectedRow.Ext}";
+    //    NavigationManager.NavigateTo(fileName, true);
+    //    //NavigationManager.NavigateTo(
+    //}
+
+    //void OnUploadClick()
+    //{
+    //    NavigationManager.NavigateTo($"uploaddocument/{SelectedRow.FhID}");
+    //}
+
+    void OnButtonClick()
+    {
+        SelectedRow.Ad = "DENEME";
+        grid.Refresh();
+        //InvokeAsync(StateHasChanged);
+
+    }
+}
