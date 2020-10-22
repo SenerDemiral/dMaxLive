@@ -1,5 +1,5 @@
 # dMaxLive
-Diyetisyenler icin Danisan Takibi.
+Diyetisyenler icin Danışan Takibi.
 
 Blazor Server,
 Net5.0,
