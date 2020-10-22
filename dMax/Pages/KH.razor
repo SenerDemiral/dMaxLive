@@ -304,6 +304,17 @@ else
                         </Template>
                     </DxFormLayoutItem>
 
+                    <DxFormLayoutItem Caption="Şablon ekle" ColSpanMd="6" Context="FormLayoutContext" >
+                        <Template>
+                            <DxComboBox Data="@TtData"
+                                        TextFieldName="@nameof(TTmodel.Ad)"
+                                        Value="@SelectedTT"
+                                        ValueExpression="@(() => SelectedTT)"
+                                        ValueChanged="@((TTmodel dataItem) => SelectedTtChanged(dataItem))"
+                                        >
+                            </DxComboBox>                        </Template>
+                    </DxFormLayoutItem>
+
                     <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
                         <Template>
                             <ValidationSummary />
@@ -357,6 +368,16 @@ else
     KHmodel SelectedRow;
     FormEditContext EditContext = null;
 
+    List<TTmodel> TtData;
+    TTmodel SelectedTT { get; set; }
+
+    protected void SelectedTtChanged(TTmodel dataItem)
+    {
+        SelectedTT = dataItem;
+        EditContext.Info += dataItem.Sablon;
+
+    }
+
     protected void Delete(KHmodel dataItem)
     {
         DeletePopupVisible = true;
@@ -381,6 +402,8 @@ else
         string sql = $"select * from KH_S({DtID}, {KtID}, {KhID})";
         data = await db.LoadData<KHmodel, dynamic>(sql, new { });
         //SetSelection();
+        TtData = await db.LoadData<TTmodel, dynamic>($"select * from TT where DtID = {DtID}", new { });
+        //SelectedTT = TtData[0];
 
         ktRec = await db.LoadRec<KTmodel, dynamic>("select Ad from KT where KtID = @KtID", new { KtID = KtID });
         //await InvokeAsync(StateHasChanged);
@@ -421,6 +444,7 @@ else
     void OnRowEditStarting(KHmodel dataItem)
     {
         ChangeToolbarEnabled(false);
+        SelectedTT = null;
 
         if (dataItem == null)
         {
@@ -445,7 +469,7 @@ else
         EditContext.StateHasChanged += () =>
         {
             InvokeAsync(StateHasChanged);   // Kullanilmiyor ???
-    };
+        };
     }
     void OnCancelButtonClick()
     {
