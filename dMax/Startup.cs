@@ -37,6 +37,8 @@ namespace dMax
             services.AddSingleton<IDataAccess>(s => new DataAccess(connString));
             services.AddScoped<MyAppState>();
             services.AddDevExpressBlazor();
+
+            services.AddTransient<IMailService, MailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -13,117 +13,139 @@
 }
 else
 {
-    <DxDataGrid @ref="@grid"
-                Data="@data"
-                KeyFieldName="TtID"
-                ShowFilterRow="@ShowFilterRow"
-                InnerComponentSizeMode="SizeMode.Small"
-                @bind-SingleSelectedDataRow="@SelectedRow"
-                EditMode="DataGridEditMode.EditForm"
-                RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
-                RowInsertStart="@(() => OnRowEditStarting(null))"
-                RowEditCancel="@(() => ChangeToolbarEnabled(true))"
-                ShowPager="true"
-                PagerPageSizeSelectorVisible="true"
-                PagerAllDataRowsItemVisible="false"
-                PagerAllowedPageSizes=@(new int[] {5,10,20,40,100})
-                PageSize="5"
-                PagerNavigationMode=PagerNavigationMode.InputBox
-                HtmlRowDecoration="@OnHtmlRowDecoration"
-                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
-                SelectionMode="DataGridSelectionMode.SingleSelectedDataRow"
-                ShowGroupPanel="true"
-                ShowDetailRow="true"
-                CssClass="MyGrid table-striped">
-        <HeaderTemplate>
-            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
-                <DxToolbarItem Text="Filter Row"
-                               BeginGroup="true"
-                               Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
-                               IconCssClass="oi oi-eye"
-                               Enabled="@Enabled" />
-                <DxToolbarItem Text="@(MyAppState.getUsrName())"
-                               BeginGroup="true"
-                               Alignment="ToolbarItemAlignment.Right"
-                               CssClass="font-italic"
-                               Enabled="false" />
-            </DxToolbar>
-        </HeaderTemplate>
-        <Columns>
-            <DxDataGridCommandColumn Width="4em">
-                <HeaderCellTemplate>
-                    <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
-                </HeaderCellTemplate>
-                <CellTemplate>
-                    <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
-                    @*<a class="oi oi-x" @onclick="@(() => Delete(context as WeatherForecast))" href="javascript:void(0);"></a>*@
-                </CellTemplate>
-            </DxDataGridCommandColumn>
+<DxDataGrid @ref="@grid"
+            Data="@data"
+            KeyFieldName="TtID"
+            ShowFilterRow="@ShowFilterRow"
+            InnerComponentSizeMode="SizeMode.Small"
+            @bind-SingleSelectedDataRow="@SelectedRow"
+            EditMode="DataGridEditMode.EditForm"
+            RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
+            RowInsertStart="@(() => OnRowEditStarting(null))"
+            RowEditCancel="@(() => ChangeToolbarEnabled(true))"
+            ShowPager="true"
+            PagerPageSizeSelectorVisible="true"
+            PagerAllDataRowsItemVisible="false"
+            PagerAllowedPageSizes=@(new int[] {5,10,20,40,100})
+            PageSize="20"
+            PagerNavigationMode=PagerNavigationMode.InputBox
+            HtmlRowDecoration="@OnHtmlRowDecoration"
+            HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+            SelectionMode="DataGridSelectionMode.SingleSelectedDataRow"
+            ShowGroupPanel="true"
+            ShowDetailRow="true"
+            CssClass="MyGrid table-striped">
+    <HeaderTemplate>
+        <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+            <DxToolbarItem Text="Filter Row"
+                           BeginGroup="true"
+                           Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
+                           IconCssClass="oi oi-eye"
+                           Enabled="@Enabled" />
+            <DxToolbarItem Text="@(MyAppState.getUsrName())"
+                           BeginGroup="true"
+                           Alignment="ToolbarItemAlignment.Right"
+                           CssClass="font-italic"
+                           Enabled="false" />
+        </DxToolbar>
+    </HeaderTemplate>
+    <Columns>
+        <DxDataGridCommandColumn Width="4em">
+            <HeaderCellTemplate>
+                <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
+            </HeaderCellTemplate>
+            <CellTemplate>
+                <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
+                @*<a class="oi oi-x" @onclick="@(() => Delete(context as WeatherForecast))" href="javascript:void(0);"></a>*@
+            </CellTemplate>
+        </DxDataGridCommandColumn>
 
 
-            <DxDataGridColumn Field=@nameof(TTmodel.TtID)
-                              Caption="ID"
-                              Width="6em"
-                              TextAlignment="DataGridTextAlign.Center"
-                              AllowGroup="false"
-                              EditorVisible="false">
-            </DxDataGridColumn>
+        <DxDataGridColumn Field=@nameof(TTmodel.TtID)
+                          Caption="ID"
+                          Width="6em"
+                          TextAlignment="DataGridTextAlign.Center"
+                          AllowGroup="false"
+                          EditorVisible="false">
+        </DxDataGridColumn>
+
+        <DxDataGridComboBoxColumn Field=@nameof(TTmodel.Skl)
+                                  Caption="Şkl"
+                                  Width="6em"
+                                  SortOrder="DataGridColumnSortOrder.Ascending"
+                                  SortIndex="0"
+                                  TextFieldName="Ad"
+                                  ValueFieldName="Skl"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  Data="@db.SklList()">
+        </DxDataGridComboBoxColumn>
+
+        <DxDataGridColumn Field=@nameof(TTmodel.Ad)
+                          Caption="Ad"
+                          AllowGroup="false" />
+    </Columns>
+
+    <TotalSummary>
+        <DxDataGridSummaryItem ShowInColumn=@nameof(TTmodel.Ad)
+                               SummaryType=SummaryItemType.Count />
+    </TotalSummary>
+
+    <DetailRowTemplate>
+        <DxMemo @bind-Text="@context.Sablon"
+                Rows="5"
+                ReadOnly="true"
+                ResizeMode="MemoResizeMode.VerticalAndHorizontal"/>
+    </DetailRowTemplate>
 
 
-            <DxDataGridColumn Field=@nameof(TTmodel.Ad)
-                              Caption="Ad"
-                              AllowGroup="false" />
-        </Columns>
-        
-        <DetailRowTemplate>
-            @{
-                <div style="display:grid; grid-template-columns: 1fr">
-                    <textarea readonly style="width:inherit; border:none;  white-space: pre-wrap;">@context.Sablon</textarea>
-                </div>
-            }
-        </DetailRowTemplate>
+    <EditFormTemplate>
+        <EditForm Model="@EditContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <DxFormLayout CaptionPosition="CaptionPosition.Horizontal">
 
-        <EditFormTemplate>
-            <EditForm Model="@EditContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
-                <DataAnnotationsValidator />
-                <DxFormLayout CaptionPosition="CaptionPosition.Horizontal">
+                <DxFormLayoutItem Caption="Şkl" ColSpanMd="4" Context="FormLayoutContext">
+                    <Template>
+                        <DxComboBox @bind-Value="@EditContext.Skl"
+                                    Data="@(new string[] { "I", "M", "S" })" />
+                    </Template>
+                </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="Ad" ColSpanMd="4" Context="FormLayoutContext">
-                        <Template>
-                            <DxTextBox @bind-Text="@EditContext.Ad" />
-                        </Template>
-                    </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Ad" ColSpanMd="4" Context="FormLayoutContext">
+                    <Template>
+                        <DxTextBox @bind-Text="@EditContext.Ad" />
+                    </Template>
+                </DxFormLayoutItem>
 
 
 
-                    <DxFormLayoutItem Caption="Şablon" ColSpanMd="12" Context="FormLayoutContext">
-                        <Template>
-                            <DxMemo @bind-Text="@EditContext.Sablon"
-                                    Rows="5"
-                                    ResizeMode="MemoResizeMode.VerticalAndHorizontal"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
-                        </Template>
-                    </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Şablon" ColSpanMd="12" Context="FormLayoutContext">
+                    <Template>
+                        <DxMemo @bind-Text="@EditContext.Sablon"
+                                Rows="5"
+                                ResizeMode="MemoResizeMode.VerticalAndHorizontal"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                    </Template>
+                </DxFormLayoutItem>
 
-                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
-                        <Template>
-                            <ValidationSummary />
-                        </Template>
-                    </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                    <Template>
+                        <ValidationSummary />
+                    </Template>
+                </DxFormLayoutItem>
 
-                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
-                        <Template>
-                            <div class="text-right">
-                                <DxButton RenderStyle="@ButtonRenderStyle.Link" SubmitFormOnClick="true" Text="Update" />
-                                <DxButton RenderStyle="@ButtonRenderStyle.Link" @onclick="@OnCancelButtonClick" Text="Cancel" />
-                            </div>
-                        </Template>
-                    </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                    <Template>
+                        <div class="text-right">
+                            <DxButton RenderStyle="@ButtonRenderStyle.Link" SubmitFormOnClick="true" Text="Update" />
+                            <DxButton RenderStyle="@ButtonRenderStyle.Link" @onclick="@OnCancelButtonClick" Text="Cancel" />
+                        </div>
+                    </Template>
+                </DxFormLayoutItem>
 
-                </DxFormLayout>
-            </EditForm>
-        </EditFormTemplate>
-    </DxDataGrid>
+            </DxFormLayout>
+        </EditForm>
+    </EditFormTemplate>
+</DxDataGrid>
 
 }
 
@@ -142,14 +164,6 @@ else
         DtID = MyAppState.getUsrID();
         string sql = $"select * from TT where DtID = {DtID}";
         data = await db.LoadData<TTmodel, dynamic>(sql, new { });
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            //await grid.SetDataRowSelectedByKey(1198, true);
-        }
     }
 
     void ChangeToolbarEnabled(bool enabled)

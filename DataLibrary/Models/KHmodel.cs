@@ -34,10 +34,15 @@ namespace DataLibrary.Models
         public string BMIRad;
         public long Yas;
         public string Ad;
+        public DateTime? DgmTrh;
         public string Sex;
+        public string Tel;
+        public string Mail;
 
         public DateTime? _EXDd => EXD?.Date;
         public string _EXDt => EXD?.ToString("HH:mm");
+        public string _DgmTrh => DgmTrh?.ToString("dd.MM.yyyy");
+        public string _TrhZmn => EXD?.ToString("dd.MM.yy HH:mm");
         public string _BoyCm => $"{BoyCm} cm";
         public string _KiloKg => $"{KiloKg:F1} Kg";
         public string _IdealKg => $"{IdealKg:F1} Kg";

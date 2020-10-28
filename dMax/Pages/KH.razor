@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IDataAccess db
 @inject MyAppState MyAppState
+@inject IMailService MailService
 @using System.Text.Json;
 
 
@@ -38,7 +39,7 @@ else
                 ShowPager="true"
                 PagerPageSizeSelectorVisible="true"
                 PagerAllDataRowsItemVisible="false"
-                PagerAllowedPageSizes=@(new int[] {5,10,20,40})
+                PagerAllowedPageSizes=@(new int[] { 5, 10, 20, 40 })
                 PagerNavigationMode=PagerNavigationMode.InputBox
                 CssClass="MyGrid table-striped">
         <HeaderTemplate>
@@ -223,7 +224,16 @@ else
                     </table>
                 </div>
 
-                <textarea readonly style="width:100%; border:none;  white-space: pre-wrap; margin-top:0.4rem; background-color:beige">@context.Info</textarea>
+                @*<textarea readonly style="width:100%; border:none;  white-space: pre-wrap; margin-top:0.4rem; background-color:beige">@context.Info</textarea>*@
+                <DxMemo @bind-Text="@context.Info"
+                        Rows="5"
+                        ReadOnly="true"
+                        ResizeMode="MemoResizeMode.VerticalAndHorizontal" />
+
+                <button type="button" class="btn btn-primary" data-toggle="button" aria-label="Left Align" @onclick="@(() => SentMailKH(context))">
+                    <span class="oi oi-envelope-closed" aria-hidden="true"></span> eMail
+                </button>
+
                 @*<DxMemo Text="@context.Info"
                     ReadOnly="true"
                     ResizeMode="MemoResizeMode.Vertical" />*@
@@ -304,15 +314,15 @@ else
                         </Template>
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="Şablon ekle" ColSpanMd="6" Context="FormLayoutContext" >
+                    <DxFormLayoutItem Caption="Şablon ekle" ColSpanMd="6" Context="FormLayoutContext">
                         <Template>
                             <DxComboBox Data="@TtData"
                                         TextFieldName="@nameof(TTmodel.Ad)"
                                         Value="@SelectedTT"
                                         ValueExpression="@(() => SelectedTT)"
-                                        ValueChanged="@((TTmodel dataItem) => SelectedTtChanged(dataItem))"
-                                        >
-                            </DxComboBox>                        </Template>
+                                        ValueChanged="@((TTmodel dataItem) => SelectedTtChanged(dataItem))">
+                            </DxComboBox>
+                        </Template>
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
@@ -344,6 +354,7 @@ else
     </div>
 </DxPopup>
 
+<p>@MailMsg</p>
 
 @*<PopupConfirm OnClick="ClickHandler" PopupVisible="@PopupVisible" HeaderText="Emin misiniz?"></PopupConfirm>
     public void ClickHandler(bool result)
@@ -352,12 +363,26 @@ else
     }
 *@
 
+<DxPopup HeaderText="@PopupHeader"
+         @bind-Visible="@PopupVisible">
+    <Content>
+        <p>
+            @PopupContent
+        </p>
+    </Content>
+</DxPopup>
+
 @code {
     [Parameter]
     public int KtID { get; set; }
     [Parameter]
     public int KhID { get; set; }
     bool DeletePopupVisible { get; set; } = false;
+    string MailMsg = "";
+
+    protected bool PopupVisible { get; set; } = false;
+    protected string PopupHeader { get; set; }
+    protected string PopupContent { get; set; }
 
     protected int DtID;
     KTmodel ktRec;
@@ -365,7 +390,7 @@ else
     DxDataGrid<KHmodel> grid;
     bool Enabled = true;
     bool ShowFilterRow = false;
-    KHmodel SelectedRow;
+    KHmodel SelectedRow { get; set; }
     FormEditContext EditContext = null;
 
     List<TTmodel> TtData;
@@ -375,7 +400,6 @@ else
     {
         SelectedTT = dataItem;
         EditContext.Info += dataItem.Sablon;
-
     }
 
     protected void Delete(KHmodel dataItem)
@@ -469,7 +493,7 @@ else
         EditContext.StateHasChanged += () =>
         {
             InvokeAsync(StateHasChanged);   // Kullanilmiyor ???
-        };
+    };
     }
     void OnCancelButtonClick()
     {
@@ -562,6 +586,32 @@ else
         }
     }
 
+    async Task SentMailKH(KHmodel dataItem)
+    {
+        MailRequest mr = new MailRequest();
+        SelectedRow = dataItem;
+
+        if (string.IsNullOrWhiteSpace(SelectedRow.Mail) || !SelectedRow.Mail.Contains("@"))
+        {
+            PopupHeader = "Mail";
+            PopupContent = "Mail adresi Yok veya Hatalı.";
+            PopupVisible = true;
+            return;
+        }
+        mr.Body = SelectedRow.Info;
+        mr.Subject = SelectedRow.Ad;
+        mr.ToEmail = SelectedRow.Mail;  //"sener.demiral@gmail.com";
+
+        mr.DtID = SelectedRow.DtID;
+        mr.KtID = SelectedRow.KtID;
+        mr.KhID = SelectedRow.KhID;
+
+        await MailService.SendEmailAsync(mr);
+        PopupHeader = "Mail";
+        PopupContent = "Mail gönderildi";
+        PopupVisible = true;
+    }
+
     class FormEditContext : KHmodel
     {
         public KHmodel DataItem { get; set; }
@@ -582,4 +632,6 @@ else
             }
         }
     }
+
+
 }

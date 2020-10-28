@@ -2,11 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>4e8ca58d-2ca4-4077-a2fd-4672bc3e919b</UserSecretsId>
+	  <DxExtendStartupHost>False</DxExtendStartupHost>
+	  <UserSecretsId>4e8ca58d-2ca4-4077-a2fd-4672bc3e919b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DevExpress.Blazor" Version="20.1.*" />
+    <Compile Remove="Startup.DevExpress.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DevExpress.Blazor" Version="20.2.3" />
   </ItemGroup>
 
   <ItemGroup>

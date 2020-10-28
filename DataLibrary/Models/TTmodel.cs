@@ -12,6 +12,7 @@ namespace DataLibrary.Models
         [Key]
         public int TtID { get; set; }
         public int DtID { get; set; }
+        public string Skl { get; set; }     // Info, Mail, Sms
         public string Ad { get; set; }
         public string Sablon { get; set; }
     }

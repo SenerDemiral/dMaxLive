@@ -22,6 +22,7 @@ namespace DataLibrary
         private readonly IConfiguration _config;
         private Dictionary<string, string> myTableFields = new Dictionary<string, string>();
         private List<SexModel> sexList;
+        private List<SklModel> sklList;
 
         public DataAccess(IConfiguration config)
         {
@@ -39,12 +40,23 @@ namespace DataLibrary
                 new SexModel { Sex = "X", Ad = "XX" }
             };
 
+            sklList = new List<SklModel>() {
+                new SklModel { Skl = "I", Ad = "Info" },
+                new SklModel { Skl = "M", Ad = "Mail" },
+                new SklModel { Skl = "S", Ad = "SMS" }
+            };
+
             myTableFields = MyTableFields(typeof(KHmodel));
         }
 
         public List<SexModel> SexList()
         {
             return sexList;
+        }
+
+        public List<SklModel> SklList()
+        {
+            return sklList;
         }
 
         public async Task<T> LoadRec<T, U>(string sql, U parameters)
