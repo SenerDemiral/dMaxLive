@@ -1,0 +1,274 @@
+﻿@page "/tg"
+
+@inject NavigationManager NavigationManager
+@inject IDataAccess db
+@inject MyAppState MyAppState
+@using System.Text.Json;
+
+<h4><span class="badge badge-info"> Şablonlar </span></h4>
+
+@if (data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <DxDataGrid @ref="@grid"
+                Data="@data"
+                KeyFieldName="TgID"
+                ShowFilterRow="@ShowFilterRow"
+                InnerComponentSizeMode="SizeMode.Small"
+                @bind-SingleSelectedDataRow="@SelectedRow"
+                EditMode="DataGridEditMode.EditForm"
+                RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
+                RowInsertStart="@(() => OnRowEditStarting(null))"
+                RowEditCancel="@(() => ChangeToolbarEnabled(true))"
+                ShowPager="true"
+                PagerPageSizeSelectorVisible="true"
+                PagerAllDataRowsItemVisible="false"
+                PagerAllowedPageSizes=@(new int[] {5,10,20,40,100})
+                PageSize="20"
+                PagerNavigationMode=PagerNavigationMode.InputBox
+                HtmlRowDecoration="@OnHtmlRowDecoration"
+                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+                SelectionMode="DataGridSelectionMode.SingleSelectedDataRow"
+                ShowGroupPanel="true"
+                ShowDetailRow="true"
+                CssClass="MyGrid">
+        <HeaderTemplate>
+            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+                <DxToolbarItem Text="Filter Row"
+                               BeginGroup="true"
+                               Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
+                               IconCssClass="oi oi-eye"
+                               Enabled="@Enabled" />
+                <DxToolbarItem Text="@(MyAppState.getUsrName())"
+                               BeginGroup="true"
+                               Alignment="ToolbarItemAlignment.Right"
+                               CssClass="font-italic"
+                               Enabled="false" />
+            </DxToolbar>
+        </HeaderTemplate>
+        <Columns>
+            <DxDataGridCommandColumn Width="4em">
+                <HeaderCellTemplate>
+                    <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
+                </HeaderCellTemplate>
+                <CellTemplate>
+                    <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
+                    @*<a class="oi oi-x" @onclick="@(() => Delete(context as WeatherForecast))" href="javascript:void(0);"></a>*@
+                </CellTemplate>
+            </DxDataGridCommandColumn>
+
+
+            <DxDataGridColumn Field=@nameof(TGmodel.TgID)
+                              Caption="ID"
+                              Width="6em"
+                              TextAlignment="DataGridTextAlign.Center"
+                              AllowGroup="false"
+                              EditorVisible="false">
+            </DxDataGridColumn>
+
+            <DxDataGridComboBoxColumn Field=@nameof(TGmodel.Skl)
+                                      Caption="Şkl"
+                                      Width="6em"
+                                      SortOrder="DataGridColumnSortOrder.Ascending"
+                                      SortIndex="0"
+                                      TextFieldName="Ad"
+                                      ValueFieldName="Skl"
+                                      ListRenderMode="ListRenderMode.Virtual"
+                                      Data="@db.TgSklList()">
+            </DxDataGridComboBoxColumn>
+
+            <DxDataGridColumn Field=@nameof(TGmodel.Ad)
+                              Caption="Ad"
+                              AllowGroup="false" />
+        </Columns>
+
+        <TotalSummary>
+            <DxDataGridSummaryItem ShowInColumn=@nameof(TGmodel.Ad)
+                                   SummaryType=SummaryItemType.Count />
+        </TotalSummary>
+
+        <EditFormTemplate>
+            <EditForm Model="@EditContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <DxFormLayout CaptionPosition="CaptionPosition.Horizontal">
+
+                    <DxFormLayoutItem Caption="Şkl" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxComboBox @bind-Value="@EditContext.Skl"
+                                        TextFieldName="Ad"
+                                        ValueFieldName="Skl"
+                                        Data="@db.TgSklList()" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Ad" ColSpanMd="4" Context="FormLayoutContext">
+                        <Template>
+                            <DxTextBox @bind-Text="@EditContext.Ad" />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                        <Template>
+                            <ValidationSummary />
+                        </Template>
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                        <Template>
+                            <div class="text-right">
+                                <DxButton RenderStyle="@ButtonRenderStyle.Link" SubmitFormOnClick="true" Text="Update" />
+                                <DxButton RenderStyle="@ButtonRenderStyle.Link" @onclick="@OnCancelButtonClick" Text="Cancel" />
+                            </div>
+                        </Template>
+                    </DxFormLayoutItem>
+
+                </DxFormLayout>
+            </EditForm>
+        </EditFormTemplate>
+    </DxDataGrid>
+
+}
+
+
+@code {
+    List<TGmodel> data;
+    DxDataGrid<TGmodel> grid;
+    TGmodel SelectedRow;
+    bool Enabled = true;
+    bool ShowFilterRow = false;
+    FormEditContext EditContext = null;
+    int DtID = -1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DtID = MyAppState.getUsrID();
+        string sql = $"select * from TG where DtID = {DtID}";
+        data = await db.LoadData<TGmodel, dynamic>(sql, new { });
+    }
+
+    void ChangeToolbarEnabled(bool enabled)
+    {
+        Enabled = enabled;
+        //StateHasChanged();
+        InvokeAsync(StateHasChanged);
+    }
+
+    void SetSelection()
+    {
+        if (data.Count > 0)
+            SelectedRow = data?.First();
+    }
+
+    void OnRowEditStarting(TGmodel dataItem)
+    {
+        ChangeToolbarEnabled(false);
+
+        if (dataItem == null)
+        {
+            EditContext = new FormEditContext(dataItem);
+        }
+        else
+        {
+            SelectedRow = dataItem;
+            string jsonString = JsonSerializer.Serialize(dataItem);
+            EditContext = JsonSerializer.Deserialize<FormEditContext>(jsonString);
+            EditContext.DataItem = dataItem;
+        }
+
+        //EditContext = new FormEditContext(dataItem);
+
+        EditContext.StateHasChanged += () =>
+        {
+            InvokeAsync(StateHasChanged);
+        };
+    }
+    void OnCancelButtonClick()
+    {
+        EditContext = null;
+        grid.CancelRowEdit();
+    }
+
+    async Task HandleValidSubmit()
+    {
+        Dictionary<string, object> newValue = new Dictionary<string, object>();
+
+        db.MyTableFieldsCopy<FormEditContext, TGmodel>(EditContext, EditContext.DataItem, newValue);  // src -> dst and add to newValue
+
+        if (EditContext.IsNewRow)
+        {
+            newValue.Add("DtID", DtID);
+            var dataItem = await db.InsertRec<TGmodel>(newValue);
+            data.Add(dataItem);
+            SelectedRow = dataItem;
+        }
+        else
+            await db.UpdateRec(SelectedRow, newValue);
+
+        EditContext = null;
+        await grid.CancelRowEdit();
+
+        //await ReadSelectedRow();
+        //var rec = await db.LoadRec<KTmodel, dynamic>("select EXD, Yas, BMI, BedenYogunlugu from KT where KtID = @KtID", new { KtID = SelectedRow.KtID });
+        await grid.Refresh();
+    }
+
+    void OnHtmlRowDecoration(DataGridHtmlRowDecorationEventArgs<TGmodel> eventArgs)
+    {
+        if (eventArgs is DataGridHtmlGroupRowDecorationEventArgs<TGmodel> groupEventArgs)
+        {
+            //if (groupEventArgs.Expanded)
+            groupEventArgs.CssClass += " font-weight-bold text-danger";
+        }
+        else
+        {
+            switch (eventArgs.RowType)
+            {
+                case DataGridHtmlRowDecorationType.DataRow:
+                    break;
+                case DataGridHtmlRowDecorationType.EditFormRow:
+                    eventArgs.CssClass += " EditForm HidePreview";
+                    // eventArgs.Style = " background-color:azure;";
+                    //eventArgs.Attributes.Add("data-editform", "aaaaa");
+                    break;
+                default:
+                    eventArgs.CssClass += " table-reflow";
+                    break;
+            }
+        }
+    }
+
+    void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<TGmodel> eventArgs)
+    {
+        if (eventArgs.FieldName == nameof(TGmodel.Ad))
+        {
+            //eventArgs.Style += " font-weight:500;";
+            eventArgs.CssClass += " font-weight-bold";
+        }
+    }
+
+    class FormEditContext : TGmodel
+    {
+        public TGmodel DataItem { get; set; }
+        public bool IsNewRow { get; set; }
+        public Action StateHasChanged { get; set; }
+
+        public FormEditContext()    // jsonDeserialize icin gerekli
+        {
+        }
+
+        public FormEditContext(TGmodel dataItem)
+        {
+            DataItem = dataItem;
+            if (DataItem == null)
+            {
+                DataItem = new TGmodel();
+                IsNewRow = true;
+            }
+        }
+    }
+
+
+}

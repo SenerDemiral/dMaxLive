@@ -16,334 +16,333 @@ else
     <h4><span class="badge badge-info"> Randevular </span></h4>
 }
 
-@if (data == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <DxDataGrid @ref="@grid"
-                Data="@data"
-                KeyFieldName="KhID"
-                @bind-SingleSelectedDataRow="@SelectedRow"
-                RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
-                RowInsertStart="@(() => OnRowEditStarting(null))"
-                RowEditCancel="@(() => ChangeToolbarEnabled(true))"
-                EditMode="DataGridEditMode.EditForm"
-                HtmlRowDecoration="@OnHtmlRowDecoration"
-                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
-                ShowGroupPanel="true"
-                ShowDetailRow="true"
-                ShowFilterRow="@ShowFilterRow"
-                InnerComponentSizeMode="SizeMode.Small"
-                ShowPager="true"
-                PagerPageSizeSelectorVisible="true"
-                PagerAllDataRowsItemVisible="false"
-                PagerAllowedPageSizes=@(new int[] { 5, 10, 20, 40 })
-                PagerNavigationMode=PagerNavigationMode.InputBox
-                CssClass="MyGrid table-striped">
-        <HeaderTemplate>
-            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
-                @*<DxToolbarItem Text="New"
-                                   BeginGroup="true"
-                                   Click="@(async() => await grid.StartRowEdit(null))"
-                                   IconCssClass="oi oi-plus"
-                                   Enabled="@Enabled" />
-                    <DxToolbarItem Text="Edit"
-                                   Click="@(async() => await grid.StartRowEdit(SelectedRow))"
-                                   IconCssClass="oi oi-pencil"
-                                   Enabled="@Enabled" />
-                    <DxToolbarItem Text="Döküman"
-                        BeginGroup="true"
-                        Click="@OnDocumentsClick"
-                        IconCssClass="oi oi-data-transfer-upload"
-                        Enabled="@Enabled" />*@
-                @if (KtID != 0)
-                    {
-                    <DxToolbarItem Text="@ktRec?.Ad"
-                                   BeginGroup="true"
-                                   Alignment="ToolbarItemAlignment.Left"
-                                   CssClass="font-weight-bold font-italic text-light bg-dark"
-                                   Enabled="false" />
+<DxDataGrid @ref="@grid"
+            Data="@data"
+            KeyFieldName="KhID"
+            @bind-SingleSelectedDataRow="@SelectedRow"
+            RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
+            RowInsertStart="@(() => OnRowEditStarting(null))"
+            RowEditCancel="@(() => ChangeToolbarEnabled(true))"
+            EditMode="DataGridEditMode.EditForm"
+            HtmlRowDecoration="@OnHtmlRowDecoration"
+            HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+            ShowGroupPanel="true"
+            ShowDetailRow="true"
+            ShowFilterRow="@ShowFilterRow"
+            InnerComponentSizeMode="SizeMode.Small"
+            ShowPager="true"
+            PagerPageSizeSelectorVisible="true"
+            PagerAllDataRowsItemVisible="false"
+            PagerAllowedPageSizes=@(new int[] { 5, 10, 20, 40 })
+            PagerNavigationMode=PagerNavigationMode.InputBox
+            CssClass="MyGrid">
 
-                    }
-                <DxToolbarItem Text="Filter Row"
-                               BeginGroup="true"
-                               GroupName="FilterRow"
-                               Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
-                               IconCssClass="oi oi-eye"
-                               Enabled="@Enabled" />
-                <DxToolbarItem Text="@(MyAppState.getUsrName())"
-                               BeginGroup="true"
-                               Alignment="ToolbarItemAlignment.Right"
-                               CssClass="font-italic"
-                               Enabled="false" />
-
-            </DxToolbar>
-        </HeaderTemplate>
-        <Columns>
-            <DxDataGridCommandColumn Width="5em">
-                <HeaderCellTemplate>
-                    <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
-                </HeaderCellTemplate>
-                <CellTemplate>
-                    <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
-                    <a class="oi oi-x pl-3" @onclick="@(() => Delete(context as KHmodel))" href="javascript:void(0);"></a>
-                </CellTemplate>
-            </DxDataGridCommandColumn>
-
-            <DxDataGridColumn Field=@nameof(KHmodel.KhID)
-                              Caption="ID"
-                              Width="5em"
-                              EditorVisible="false"
-                              TextAlignment="DataGridTextAlign.Center"
-                              AllowGroup="false">
-            </DxDataGridColumn>
-
-            <DxDataGridColumn Field=@nameof(KHmodel.KhID)
-                              Caption=" "
-                              TextAlignment="DataGridTextAlign.Center"
-                              Width="3em"
-                              AllowFilter="false"
-                              AllowGroup="false"
-                              EditorVisible="false">
-                <DisplayTemplate>
-                    @{
-                            int ktID = (context as KHmodel).KtID;
-                            int khID = (context as KHmodel).KhID;
-                        <NavLink class="navbar-dark" href="@($"fh/{ktID}/{khID}")">
-                            <span class="badge badge-primary">D</span>
-                        </NavLink>
-                    }
-                </DisplayTemplate>
-            </DxDataGridColumn>
-
-            <DxDataGridDateEditColumn Field=@nameof(KHmodel._EXDd)
-                                      TextAlignment="DataGridTextAlign.Center"
-                                      SortOrder="DataGridColumnSortOrder.Descending"
-                                      SortIndex="0"
-                                      Caption="Tarih"
-                                      Width="6em"
-                                      DisplayFormat="dd.MM.yy" />
-            <DxDataGridDateEditColumn Field=@nameof(KHmodel._EXDt)
-                                      TextAlignment="DataGridTextAlign.Center"
-                                      SortOrder="DataGridColumnSortOrder.Descending"
-                                      SortIndex="1"
-                                      Width="6em"
-                                      Caption="Zaman" />
-            @if (KhID < 0 || KtID == 0)
+    <HeaderTemplate>
+        <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+            @*<DxToolbarItem Text="New"
+                                BeginGroup="true"
+                                Click="@(async() => await grid.StartRowEdit(null))"
+                                IconCssClass="oi oi-plus"
+                                Enabled="@Enabled" />
+                <DxToolbarItem Text="Edit"
+                                Click="@(async() => await grid.StartRowEdit(SelectedRow))"
+                                IconCssClass="oi oi-pencil"
+                                Enabled="@Enabled" />
+                <DxToolbarItem Text="Döküman"
+                    BeginGroup="true"
+                    Click="@OnDocumentsClick"
+                    IconCssClass="oi oi-data-transfer-upload"
+                    Enabled="@Enabled" />*@
+            @if (KtID != 0)
                 {
-                <DxDataGridColumn Field=@nameof(KHmodel.Ad)
-                                  Caption="Ad"
-                                  EditorVisible="false"
-                                  AllowGroup="true">
-                </DxDataGridColumn>
+                <DxToolbarItem Text="@ktRec?.Ad"
+                                BeginGroup="true"
+                                Alignment="ToolbarItemAlignment.Left"
+                                CssClass="font-weight-bold font-italic text-light bg-dark"
+                                Enabled="false" />
+
                 }
+            <DxToolbarItem Text="Filter Row"
+                            BeginGroup="true"
+                            GroupName="FilterRow"
+                            Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
+                            IconCssClass="oi oi-eye"
+                            Enabled="@Enabled" />
+            <DxToolbarItem Text="@(MyAppState.getUsrName())"
+                            BeginGroup="true"
+                            Alignment="ToolbarItemAlignment.Right"
+                            CssClass="font-italic"
+                            Enabled="false" />
 
-            <DxDataGridSpinEditColumn Field=@nameof(KHmodel.KiloKg)
-                                      Caption="KiloKg"
-                                      Width="6em"
-                                      TextAlignment="DataGridTextAlign.Center"
-                                      DisplayFormat="###.#" />
+        </DxToolbar>
+    </HeaderTemplate>
 
-            <DxDataGridSpinEditColumn Field=@nameof(KHmodel.HedefKg)
-                                      Caption="HedefKg"
-                                      Width="6em"
-                                      TextAlignment="DataGridTextAlign.Center"
-                                      DisplayFormat="###.#" />
+    <Columns>
+        <DxDataGridCommandColumn Width="5em">
+            <HeaderCellTemplate>
+                <a class="oi oi-plus" @onclick="@(() => grid.StartRowEdit(null))" href="javascript:void(0);"></a>
+            </HeaderCellTemplate>
+            <CellTemplate>
+                <a class="oi oi-pencil" @onclick="@(() => grid.StartRowEdit(context))" href="javascript:void(0);"></a>
+                <a class="oi oi-x pl-3" @onclick="@(() => Delete(context as KHmodel))" href="javascript:void(0);"></a>
+            </CellTemplate>
+        </DxDataGridCommandColumn>
 
-            @*<DxDataGridSpinEditColumn Field=@nameof(KHmodel.KasKg)
-                                          Caption="KasKg"
-                                          DisplayFormat="F1" />
+        <DxDataGridColumn Field=@nameof(KHmodel.KhID)
+                            Caption="ID"
+                            Width="5em"
+                            EditorVisible="false"
+                            TextAlignment="DataGridTextAlign.Center"
+                            AllowGroup="false">
+        </DxDataGridColumn>
 
-                <DxDataGridSpinEditColumn Field=@nameof(KHmodel.YagKg)
-                                          Caption="YağKg"
-                                          DisplayFormat="F1" />
+        <DxDataGridColumn Field=@nameof(KHmodel.KhID)
+                            Caption=" "
+                            TextAlignment="DataGridTextAlign.Center"
+                            Width="3em"
+                            AllowFilter="false"
+                            AllowGroup="false"
+                            EditorVisible="false">
+            <DisplayTemplate>
+                @{
+                        int ktID = (context as KHmodel).KtID;
+                        int khID = (context as KHmodel).KhID;
+                    <NavLink class="navbar-dark" href="@($"fh/{ktID}/{khID}")">
+                        <span class="badge badge-primary">D</span>
+                    </NavLink>
+                }
+            </DisplayTemplate>
+        </DxDataGridColumn>
 
-                <DxDataGridSpinEditColumn Field=@nameof(KHmodel.SiviKg)
-                                          Caption="SıvıKg"
-                                          DisplayFormat="F1" />*@
-
-            <DxDataGridSpinEditColumn Field=@nameof(KHmodel.BMI)
-                                      Caption="BMI"
-                                      TextAlignment="DataGridTextAlign.Center"
-                                      Width="6em"
-                                      DisplayFormat="###.#" />
-
-            <DxDataGridColumn Field=@nameof(KHmodel.BMIRad)
-                              Caption="BMI Range"
-                              EditorVisible="false" />
-        </Columns>
-
-        <DetailRowTemplate>
-            @{
-                //KHmodel mdl = context.DataItem;
-                <div>
-                    <table cellpadding="5" cellspacing="0">
-                        <tbody>
-                            <tr>
-                                <td><em>Yaş </em></td>
-                                <td style="width:6rem">@context.Yas</td>
-
-                                <td><em>Boy</em></td>
-                                <td style="width:6rem">@context._BoyCm</td>
-
-                                <td><em>Protein</em></td>
-                                <td style="width:6rem">@context._ProteinKg</td>
-
-                                <td><em>Metabolik Yaş</em></td>
-                                <td style="width:6rem">@context.MetabolikYas</td>
-                            </tr>
-                            <tr>
-                                <td><em>Kas</em></td>
-                                <td style="width:6rem">@context._KasKg</td>
-
-                                <td><em>Yağ</em></td>
-                                <td style="width:6rem">@context._YagKg</td>
-
-                                <td><em>Sıvı</em></td>
-                                <td style="width:6rem">@context.SiviKg</td>
-
-                                <td><em>Beden Yoğunluğu</em></td>
-                                <td style="width:6rem">@context._BedenYogunlugu</td>
-                            </tr>
-                            <tr>
-                                <td><em>İdealKilo</em></td>
-                                <td>@context._IdealKg</td>
-
-                                <td><em>Mineral</em></td>
-                                <td>@context._MineralKg</td>
-
-                                <td><em>Bazal Metabolizma Hızı</em></td>
-                                <td>@context._BMHkCal</td>
-
-                                <td><em>İç Yağlanma</em></td>
-                                <td>@context.IcYaglanma</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                @*<textarea readonly style="width:100%; border:none;  white-space: pre-wrap; margin-top:0.4rem; background-color:beige">@context.Info</textarea>*@
-                <DxMemo @bind-Text="@context.Info"
-                        Rows="5"
-                        ReadOnly="true"
-                        ResizeMode="MemoResizeMode.VerticalAndHorizontal" />
-
-                <button type="button" class="btn btn-primary" data-toggle="button" aria-label="Left Align" @onclick="@(() => SentMailKH(context))">
-                    <span class="oi oi-envelope-closed" aria-hidden="true"></span> eMail
-                </button>
-
-                @*<DxMemo Text="@context.Info"
-                    ReadOnly="true"
-                    ResizeMode="MemoResizeMode.Vertical" />*@
+        <DxDataGridDateEditColumn Field=@nameof(KHmodel._EXDd)
+                                    TextAlignment="DataGridTextAlign.Center"
+                                    SortOrder="DataGridColumnSortOrder.Descending"
+                                    SortIndex="0"
+                                    Caption="Tarih"
+                                    Width="6em"
+                                    DisplayFormat="dd.MM.yy" />
+        <DxDataGridDateEditColumn Field=@nameof(KHmodel._EXDt)
+                                    TextAlignment="DataGridTextAlign.Center"
+                                    SortOrder="DataGridColumnSortOrder.Descending"
+                                    SortIndex="1"
+                                    Width="6em"
+                                    Caption="Zaman" />
+        @if (KhID < 0 || KtID == 0)
+            {
+            <DxDataGridColumn Field=@nameof(KHmodel.Ad)
+                                Caption="Ad"
+                                EditorVisible="false"
+                                AllowGroup="true">
+            </DxDataGridColumn>
             }
-        </DetailRowTemplate>
 
-        <EditFormTemplate>
-            <EditForm Model="@EditContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
-                <DataAnnotationsValidator />
-                <DxFormLayout>
-                    <DxFormLayoutItem Caption="Tarih" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxDateEdit @bind-Date="@EditContext.EXD"
-                                        Format="dd.MM.yy HH:mm"
-                                        DisplayFormat="dd.MM.yy HH:mm" />
-                        </Template>
-                    </DxFormLayoutItem>
+        <DxDataGridSpinEditColumn Field=@nameof(KHmodel.KiloKg)
+                                    Caption="KiloKg"
+                                    Width="6em"
+                                    TextAlignment="DataGridTextAlign.Center"
+                                    DisplayFormat="###.#" />
 
-                    <DxFormLayoutItem Caption="BoyCm" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.BoyCm" />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="MetabolikYaş" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.MetabolikYas" />
-                        </Template>
-                    </DxFormLayoutItem>
+        <DxDataGridSpinEditColumn Field=@nameof(KHmodel.HedefKg)
+                                    Caption="HedefKg"
+                                    Width="6em"
+                                    TextAlignment="DataGridTextAlign.Center"
+                                    DisplayFormat="###.#" />
 
-                    <DxFormLayoutItem Caption="KiloKg" ColSpanMd="3" Context="FormLayoutContext" BeginRow="true">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.KiloKg" />
-                        </Template>
-                    </DxFormLayoutItem>
+        @*<DxDataGridSpinEditColumn Field=@nameof(KHmodel.KasKg)
+                                        Caption="KasKg"
+                                        DisplayFormat="F1" />
 
-                    <DxFormLayoutItem Caption="KasKg" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.KasKg" />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="YağKg" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.YagKg" />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="SıvıKg" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.SiviKg" />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="ProteinKg" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.ProteinKg" />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="MineralKg" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.MineralKg" />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="BMH kCal" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.BMHkCal" />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="İçYağlanma" ColSpanMd="3" Context="FormLayoutContext">
-                        <Template>
-                            <DxSpinEdit @bind-Value="@EditContext.IcYaglanma" />
-                        </Template>
-                    </DxFormLayoutItem>
+            <DxDataGridSpinEditColumn Field=@nameof(KHmodel.YagKg)
+                                        Caption="YağKg"
+                                        DisplayFormat="F1" />
 
-                    <DxFormLayoutItem Caption="Info" ColSpanMd="12" Context="FormLayoutContext">
-                        <Template>
-                            <DxMemo @bind-Text="@EditContext.Info"
-                                    Rows="5"
-                                    ResizeMode="MemoResizeMode.VerticalAndHorizontal"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
-                        </Template>
-                    </DxFormLayoutItem>
+            <DxDataGridSpinEditColumn Field=@nameof(KHmodel.SiviKg)
+                                        Caption="SıvıKg"
+                                        DisplayFormat="F1" />*@
 
-                    <DxFormLayoutItem Caption="Şablon ekle" ColSpanMd="6" Context="FormLayoutContext">
-                        <Template>
-                            <DxComboBox Data="@TtData"
-                                        TextFieldName="@nameof(TTmodel.Ad)"
-                                        Value="@SelectedTT"
-                                        ValueExpression="@(() => SelectedTT)"
-                                        ValueChanged="@((TTmodel dataItem) => SelectedTtChanged(dataItem))">
-                            </DxComboBox>
-                        </Template>
-                    </DxFormLayoutItem>
+        <DxDataGridSpinEditColumn Field=@nameof(KHmodel.BMI)
+                                    Caption="BMI"
+                                    TextAlignment="DataGridTextAlign.Center"
+                                    Width="6em"
+                                    DisplayFormat="###.#" />
 
-                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
-                        <Template>
-                            <ValidationSummary />
-                        </Template>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
-                        <Template>
-                            <div class="text-right">
-                                <DxButton RenderStyle="@ButtonRenderStyle.Link" SubmitFormOnClick="true" Text="Update" />
-                                <DxButton RenderStyle="@ButtonRenderStyle.Link" @onclick="@OnCancelButtonClick" Text="Cancel" />
-                            </div>
-                        </Template>
-                    </DxFormLayoutItem>
-                </DxFormLayout>
-            </EditForm>
-        </EditFormTemplate>
-    </DxDataGrid>
+        <DxDataGridColumn Field=@nameof(KHmodel.BMIRad)
+                            Caption="BMI Range"
+                            EditorVisible="false" />
+    </Columns>
 
-}
+    <DetailRowTemplate>
+        @{
+            //KHmodel mdl = context.DataItem;
+            <div>
+                <table cellpadding="5" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td><em>Yaş </em></td>
+                            <td style="width:6rem">@context.Yas</td>
+
+                            <td><em>Boy</em></td>
+                            <td style="width:6rem">@context._BoyCm</td>
+
+                            <td><em>Protein</em></td>
+                            <td style="width:6rem">@context._ProteinKg</td>
+
+                            <td><em>Metabolik Yaş</em></td>
+                            <td style="width:6rem">@context.MetabolikYas</td>
+                        </tr>
+                        <tr>
+                            <td><em>Kas</em></td>
+                            <td style="width:6rem">@context._KasKg</td>
+
+                            <td><em>Yağ</em></td>
+                            <td style="width:6rem">@context._YagKg</td>
+
+                            <td><em>Sıvı</em></td>
+                            <td style="width:6rem">@context.SiviKg</td>
+
+                            <td><em>Beden Yoğunluğu</em></td>
+                            <td style="width:6rem">@context._BedenYogunlugu</td>
+                        </tr>
+                        <tr>
+                            <td><em>İdealKilo</em></td>
+                            <td>@context._IdealKg</td>
+
+                            <td><em>Mineral</em></td>
+                            <td>@context._MineralKg</td>
+
+                            <td><em>Bazal Metabolizma Hızı</em></td>
+                            <td>@context._BMHkCal</td>
+
+                            <td><em>İç Yağlanma</em></td>
+                            <td>@context.IcYaglanma</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            @*<textarea readonly style="width:100%; border:none;  white-space: pre-wrap; margin-top:0.4rem; background-color:beige">@context.Info</textarea>*@
+            <DxMemo @bind-Text="@context.Info"
+                    Rows="5"
+                    ReadOnly="true"
+                    CssClass="mt-1"
+                    ResizeMode="MemoResizeMode.VerticalAndHorizontal" />
+
+            <button type="button" class="btn btn-primary mt-1" data-toggle="button" aria-label="Left Align" @onclick="@(() => SentMailKH(context))">
+                <span class="oi oi-envelope-closed" aria-hidden="true"></span> eMail
+            </button>
+
+            @*<DxMemo Text="@context.Info"
+                ReadOnly="true"
+                ResizeMode="MemoResizeMode.Vertical" />*@
+        }
+    </DetailRowTemplate>
+
+    <EditFormTemplate>
+        <EditForm Model="@EditContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="Tarih" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxDateEdit @bind-Date="@EditContext.EXD"
+                                    Format="dd.MM.yy HH:mm"
+                                    DisplayFormat="dd.MM.yy HH:mm" />
+                    </Template>
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="BoyCm" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.BoyCm" />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="MetabolikYaş" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.MetabolikYas" />
+                    </Template>
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="KiloKg" ColSpanMd="3" Context="FormLayoutContext" BeginRow="true">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.KiloKg" />
+                    </Template>
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="KasKg" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.KasKg" />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="YağKg" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.YagKg" />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SıvıKg" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.SiviKg" />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="ProteinKg" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.ProteinKg" />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="MineralKg" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.MineralKg" />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="BMH kCal" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.BMHkCal" />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="İçYağlanma" ColSpanMd="3" Context="FormLayoutContext">
+                    <Template>
+                        <DxSpinEdit @bind-Value="@EditContext.IcYaglanma" />
+                    </Template>
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Info" ColSpanMd="12" Context="FormLayoutContext">
+                    <Template>
+                        <DxMemo @bind-Text="@EditContext.Info"
+                                Rows="5"
+                                ResizeMode="MemoResizeMode.VerticalAndHorizontal"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                    </Template>
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Şablon ekle" ColSpanMd="6" Context="FormLayoutContext">
+                    <Template>
+                        <DxComboBox Data="@TtData"
+                                    TextFieldName="@nameof(TTmodel.Ad)"
+                                    Value="@SelectedTT"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ValueExpression="@(() => SelectedTT)"
+                                    ValueChanged="@((TTmodel dataItem) => SelectedTtChanged(dataItem))">
+                        </DxComboBox>
+                    </Template>
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                    <Template>
+                        <ValidationSummary />
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
+                    <Template>
+                        <div class="text-right">
+                            <DxButton RenderStyle="@ButtonRenderStyle.Link" SubmitFormOnClick="true" Text="Update" />
+                            <DxButton RenderStyle="@ButtonRenderStyle.Link" @onclick="@OnCancelButtonClick" Text="Cancel" />
+                        </div>
+                    </Template>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditForm>
+    </EditFormTemplate>
+
+</DxDataGrid>
+
+
 
 <DxPopup HeaderText="Silmek istediğinizden emin misiniz?"
          ShowCloseButton="false"
@@ -399,7 +398,8 @@ else
     protected void SelectedTtChanged(TTmodel dataItem)
     {
         SelectedTT = dataItem;
-        EditContext.Info += dataItem.Sablon;
+        if (dataItem != null)
+            EditContext.Info += dataItem.Sablon;
     }
 
     protected void Delete(KHmodel dataItem)
@@ -426,7 +426,8 @@ else
         string sql = $"select * from KH_S({DtID}, {KtID}, {KhID})";
         data = await db.LoadData<KHmodel, dynamic>(sql, new { });
         //SetSelection();
-        TtData = await db.LoadData<TTmodel, dynamic>($"select * from TT where DtID = {DtID}", new { });
+        // Skl=Hareket olanlar
+        TtData = await db.LoadData<TTmodel, dynamic>($"select * from TT where DtID = {DtID} and Skl = 'H'", new { });
         //SelectedTT = TtData[0];
 
         ktRec = await db.LoadRec<KTmodel, dynamic>("select Ad from KT where KtID = @KtID", new { KtID = KtID });
@@ -493,7 +494,7 @@ else
         EditContext.StateHasChanged += () =>
         {
             InvokeAsync(StateHasChanged);   // Kullanilmiyor ???
-    };
+        };
     }
     void OnCancelButtonClick()
     {
@@ -526,13 +527,13 @@ else
 
     async Task ReadSelectedRow()
     {
-        //var rec = await db.LoadRec<KHmodel, dynamic>("select EXD, Yas, BMI, BMIad, BedenYogunlugu from KH where KhID = @KhID", new { KhID = SelectedRow.KhID });
         int khID = SelectedRow.KhID;
         Console.WriteLine($"khID : {khID}");
-        var rec = await db.LoadRec<KHmodel, dynamic>($"select Ad, EXD, Yas, IdealKg, HedefKg, BMI, BMIRad, BedenYogunlugu from KH_S( {DtID}, {KtID}, {khID} )", new { });
+        var rec = await db.LoadRec<KHmodel, dynamic>($"select Ad, EXD, BoyCm, Yas, IdealKg, HedefKg, BMI, BMIRad, BedenYogunlugu from KH_S( {DtID}, {KtID}, {khID} )", new { });
         // Computeds
         SelectedRow.Ad = rec.Ad;
         SelectedRow.EXD = rec.EXD;
+        SelectedRow.BoyCm = rec.BoyCm;
         SelectedRow.Yas = rec.Yas;
         SelectedRow.BMI = rec.BMI;
         SelectedRow.BMIRad = rec.BMIRad;
@@ -549,13 +550,32 @@ else
         NavigationManager.NavigateTo($"fh/{SelectedRow.KhID}");
     }
 
-    void OnButtonClick()
+    void OnHtmlRowDecoration(DataGridHtmlRowDecorationEventArgs<KHmodel> eventArgs)
     {
-        ReadSelectedRow().Wait();
-        //InvokeAsync(StateHasChanged);
+        if (eventArgs is DataGridHtmlGroupRowDecorationEventArgs<KHmodel> groupEventArgs)
+        {
+            //if (groupEventArgs.Expanded)
+            groupEventArgs.CssClass += " font-weight-bold text-danger";
+        }
+        else
+        {
+            switch (eventArgs.RowType)
+            {
+                case DataGridHtmlRowDecorationType.DataRow:
+                    break;
+                case DataGridHtmlRowDecorationType.EditFormRow:
+                    eventArgs.CssClass += " EditForm HidePreview";
+                    // eventArgs.Style = " background-color:azure;";
+                    //eventArgs.Attributes.Add("data-editform", "aaaaa");
+                    break;
+                default:
+                    eventArgs.CssClass += " table-reflow";
+                    break;
+            }
+        }
     }
 
-    void OnHtmlRowDecoration(DataGridHtmlRowDecorationEventArgs<KHmodel> eventArgs)
+    void OnHtmlRowDecoration2(DataGridHtmlRowDecorationEventArgs<KHmodel> eventArgs)
     {
         switch (eventArgs.RowType)
         {
@@ -568,7 +588,7 @@ else
                 break;
             case DataGridHtmlRowDecorationType.EditFormRow:
                 eventArgs.CssClass += " EditForm HidePreview";
-                eventArgs.Style = "background-color: ghostwhite";
+                //eventArgs.Style = "background-color: ghostwhite";
                 break;
             default:
                 eventArgs.CssClass += " table-reflow";

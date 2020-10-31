@@ -10,6 +10,7 @@ namespace DataLibrary
     {
         List<SexModel> SexList();
         List<SklModel> SklList();
+        List<SklModel> TgSklList();
         Task<T> LoadRec<T, U>(string sql, U parameters);
         Task<List<T>> LoadData<T, U>(string sql, U parameters);
         Task SaveData<T>(string sql, T parameters);

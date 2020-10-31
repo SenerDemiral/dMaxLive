@@ -2,7 +2,7 @@
 @inject NavigationManager NavigationManager
 
 @inject MyAppState MyAppState
-@inject ProtectedLocalStorage ProtectedLocalStore
+@inject ProtectedLocalStorage ProtectedLocalStorage
 
 <nav class="navbar header-navbar p-0">
     <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
@@ -31,11 +31,11 @@
     {
         NavigationManager.NavigateTo("/login");
     }
-    private void LogoutUser()
+    private async Task LogoutUser()
     {
         //myAppState.setUsr(0, "");
         MyAppState.LogoutUser();
-        ProtectedLocalStore.DeleteAsync("myAppState");
+        await ProtectedLocalStorage.DeleteAsync("myAppState");
         NavigationManager.NavigateTo("/");
     }
 

@@ -1,7 +1,7 @@
 ﻿@page "/uploadphoto"
 @inject NavigationManager NavigationManager
 
-<button type="button" id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Avatar Seç</button>
+<button type="button" id="overviewDemoSelectButton" class="btn btn-warning">Avatar Seç</button>
 <DxUpload Name="myFile"
           Visible="@UploadVisible"
           AcceptedFileTypes="@(new List<string> { "image/*" })"

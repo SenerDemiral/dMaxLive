@@ -3,7 +3,7 @@
 }
 
 .MyGrid .EditForm {
-    background-color: azure;
+    background-color: lightyellow !important;
 }
 
 .MyGrid .HidePreview + tr {
@@ -39,4 +39,11 @@
 
 .MyGrid .dxbs-popup-fixed-width {
     max-width: 700px;
+}
+
+.MyDetailRowLabel {
+    color: orangered;
+    font-style: italic;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
 }

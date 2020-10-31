@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
 
 namespace DataLibrary.Models
@@ -40,8 +41,23 @@ namespace DataLibrary.Models
         public float KiloKg { get; set; }
 
         public string Info { get; set; }
+        public string TGs { get; set; }
 
         public string _Sex => Sex == "E" ? "Erkek" : "Kadın";
+
+        //public List<string> sTgList; // = new List<string>();
+        public List<string> TgList { get
+            {
+                //sTgList = TGs?.Split(',').ToList();
+                //SelectedTGs = sTgList;
+                //return sTgList;
+                return TGs?.Split(',').ToList();
+            }
+            //set { }
+        }
+        public IEnumerable<string> SelectedTGs { get; set; }
+
+
     }
 
     public class KTSLmodel  // KT SelectLookup of DT

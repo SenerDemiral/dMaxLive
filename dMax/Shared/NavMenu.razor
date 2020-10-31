@@ -2,23 +2,22 @@
 @implements IDisposable
 
 
-<DxTreeView AllowSelectNodes="true" CssClass="app-sidebar">
+<DxTreeView AllowSelectNodes="true" CssClass="app-sidebar" @key="@usrID">
     <Nodes>
-        <DxTreeViewNode NavigateUrl="" Text="Genel Bakış"></DxTreeViewNode>
-        @*<DxTreeViewNode NavigateUrl="datagrid" Text="Data Grid"></DxTreeViewNode>*@
+        <DxTreeViewNode NavigateUrl="" Text="Genel Bakış" IconCssClass="oi oi-home mb-0"></DxTreeViewNode>
         @if (usrID > 0 && usrID < 1000)
         {
             <DxTreeViewNode NavigateUrl="kt" Text="Kişiler" BadgeText="K"></DxTreeViewNode>
             <DxTreeViewNode NavigateUrl="kh/0/0" Text="Hareketler" BadgeText="H"></DxTreeViewNode>
             <DxTreeViewNode NavigateUrl="bmir" Text="BMI Ranges" BadgeText="B"></DxTreeViewNode>
             <DxTreeViewNode NavigateUrl="tt" Text="Şablonlar" BadgeText="Ş"></DxTreeViewNode>
-
+            <DxTreeViewNode NavigateUrl="tg" Text="Etiketler" BadgeText="E"></DxTreeViewNode>
         }
     </Nodes>
 </DxTreeView>
 
 @code{
-    private int usrID = 0;
+    private int usrID = 0;  // DxTreeView daki @key dikkat baska turlu refresh olmuyor, dolayisiyla usrID degistiginde refresh oluyor
 
     protected override void OnInitialized()
     {
@@ -30,11 +29,8 @@
     void OnMyStateStateChanged(object sender, EventArgs e)
     {
         usrID = MyAppState.getUsrID();
-        StateHasChanged();
-        //InvokeAsync(() =>
-        //{
-        //    StateHasChanged();
-        //});
+        //StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
     void IDisposable.Dispose()

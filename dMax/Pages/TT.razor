@@ -34,7 +34,7 @@ else
             SelectionMode="DataGridSelectionMode.SingleSelectedDataRow"
             ShowGroupPanel="true"
             ShowDetailRow="true"
-            CssClass="MyGrid table-striped">
+            CssClass="MyGrid">
     <HeaderTemplate>
         <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
             <DxToolbarItem Text="Filter Row"
@@ -106,7 +106,9 @@ else
                 <DxFormLayoutItem Caption="Şkl" ColSpanMd="4" Context="FormLayoutContext">
                     <Template>
                         <DxComboBox @bind-Value="@EditContext.Skl"
-                                    Data="@(new string[] { "I", "M", "S" })" />
+                                  TextFieldName="Ad"
+                                  ValueFieldName="Skl"
+                                    Data="@db.SklList()"/>
                     </Template>
                 </DxFormLayoutItem>
 
@@ -234,18 +236,26 @@ else
 
     void OnHtmlRowDecoration(DataGridHtmlRowDecorationEventArgs<TTmodel> eventArgs)
     {
-        switch (eventArgs.RowType)
+        if (eventArgs is DataGridHtmlGroupRowDecorationEventArgs<TTmodel> groupEventArgs)
         {
-            case DataGridHtmlRowDecorationType.DataRow:
-                break;
-            case DataGridHtmlRowDecorationType.EditFormRow:
-                eventArgs.CssClass += " EditForm HidePreview";
-                // eventArgs.Style = " background-color:azure;";
-                eventArgs.Attributes.Add("data-editform", "aaaaa");
-                break;
-            default:
-                eventArgs.CssClass += " table-reflow";
-                break;
+            //if (groupEventArgs.Expanded)
+            groupEventArgs.CssClass += " font-weight-bold text-danger";
+        }
+        else
+        {
+            switch (eventArgs.RowType)
+            {
+                case DataGridHtmlRowDecorationType.DataRow:
+                    break;
+                case DataGridHtmlRowDecorationType.EditFormRow:
+                    eventArgs.CssClass += " EditForm HidePreview";
+                    // eventArgs.Style = " background-color:azure;";
+                    //eventArgs.Attributes.Add("data-editform", "aaaaa");
+                    break;
+                default:
+                    eventArgs.CssClass += " table-reflow";
+                    break;
+            }
         }
     }
 
