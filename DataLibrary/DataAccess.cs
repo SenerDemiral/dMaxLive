@@ -244,9 +244,6 @@ namespace DataLibrary
 
         public void MyTableFieldsCopy<T, U>(T edtCtx, U oldRow, IDictionary<string, object> newValue)
         {
-            //var ts = typeof(T);
-            //var td = typeof(U);
-
             // edtCtx::EditFormContext (oldRow disinda baska alanlar da var)
             // oldRow::??model bunun uzerinden git
             foreach (var fld in oldRow.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty))

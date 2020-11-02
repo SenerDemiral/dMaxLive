@@ -24,6 +24,7 @@
             PagerAllDataRowsItemVisible="false"
             PagerAllowedPageSizes=@(new int[] {5,10,20,40,100})
             PageSize="5"
+            PageIndexChanged="@OnPageIndexChanged"
             PagerNavigationMode=PagerNavigationMode.InputBox
             HtmlRowDecoration="@OnHtmlRowDecoration"
             HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
@@ -74,13 +75,13 @@
             <DisplayTemplate>
                 @{
                     int id = (context as KTmodel).KtID;
-                    <a @onclick="@(() => OnHareketClick(id))" href="javascript:void(0);">
-                        <span class="badge badge-primary">H</span>
-                    </a>
-
-                    @*<NavLink class="navbar-dark" href="@($"kh/{id}/0")">
+                    @*<a @onclick="@(() => OnHareketClick(id))" href="javascript:void(0);">
                             <span class="badge badge-primary">H</span>
-                        </NavLink>*@
+                        </a>*@
+
+                    <NavLink class="navbar-dark" href="@($"kh/{id}/0")">
+                        <span class="badge badge-primary">H</span>
+                    </NavLink>
                 }
             </DisplayTemplate>
         </DxDataGridColumn>
@@ -408,7 +409,20 @@
     DxDataGrid<KTmodel> grid;
     bool Enabled = true;
     bool ShowFilterRow = false;
-    KTmodel SelectedRow;
+    //KTmodel SelectedRow;
+
+    KTmodel selectedRow;
+    public KTmodel SelectedRow
+    {
+        get { return selectedRow; }
+        set
+        {
+            selectedRow = value;
+            MyAppState.curKtID = selectedRow.KtID;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
     FormEditContext EditContext = null;
     int DtID = -1;
     List<TTmodel> TtData;
@@ -417,9 +431,21 @@
     List<TGmodel> TgData;
     IEnumerable<string> FilteredTGs { get; set; } // = new List<string>();
 
+    void OnSelectedDataRowChanged()
+    {
+
+    }
+
+    void OnPageIndexChanged(int newPageIndex)
+    {
+        MyAppState.curKtPageIndex = newPageIndex;
+        //if (SelectedRow != null)
+        //    MyAppState.curKtID = SelectedRow.KtID;
+        //grid.SetDataRowSelectedByKey(MyAppState.curKtID, true);
+    }
+
     void OnHareketClick(int ktID)
     {
-        MyAppState.curKtPageIndex = grid.PageIndex;
         NavigationManager.NavigateTo($"kh/{ktID}/0");
     }
 
@@ -463,11 +489,6 @@
         string sql = $"select * from KT where DtID = {DtID}";
         data = await db.LoadData<KTmodel, dynamic>(sql, new { });
 
-        //for (int i = 0; i < data.Count; i++)
-        //{
-        //    data[i].SelectedTGs = data[i].TgList;
-        //}
-
         // Skl=Kisi olanlar
         TtData = await db.LoadData<TTmodel, dynamic>($"select * from TT where DtID = {DtID} and Skl = 'K'", new { });
 
@@ -480,13 +501,11 @@
         CompareInfo myComp = CultureInfo.InvariantCulture.CompareInfo;
         if (myComp.Compare(s1, s2, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0)
         {
-
         }
 
         //if (string.Compare(s1, s2, CultureInfo.InvariantxCulture, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0)
         if (string.Compare(s1, s2, true, CultureInfo.InvariantCulture) == 0)
         {
-
         }
         s2 = "[ŞenErğ] 12345";
         var trLocale = CultureInfo.GetCultureInfo("tr-TR");
@@ -508,27 +527,12 @@
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
-            grid.PageIndex = MyAppState.curKtPageIndex;
-
-    }
-
-    /*
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
         {
-            await Task.Delay(1);    // Use await Task.Delay(1) or await Task.Yield(); to flush changes (is loading ... kullaniyorsan)
-            int usrID = MyAppState.getUsrID();
-            //string sql = $"select KhID, KtID, DtID, EXD, BoyCm, KiloKg, IdealKg, KasKg, YagKg, SiviKg, Info, BMI from KH where KtID = {KtID} and DtID = {usrID}";
-            string sql = $"select * from KT where DtID = {usrID}";
-            data = await db.LoadData<KTmodel, dynamic>(sql, new { });
-            //SetSelection();
-
-            //StateHasChanged();
-            await InvokeAsync(StateHasChanged);
+            grid.PageIndex = MyAppState.curKtPageIndex;
+            if (MyAppState.curKtID > 0)
+                grid.SetDataRowSelectedByKey(MyAppState.curKtID, true);
         }
     }
-    */
 
     void ChangeToolbarEnabled(bool enabled)
     {
@@ -578,26 +582,6 @@
     {
         Dictionary<string, object> newValue = new Dictionary<string, object>();
 
-        //IEnumerable<string> aaa = EditContext.SelectedTGs.ToList();
-        //EditContext.SelectedTGs = aaa;
-
-
-        // SelectedTGs List oldugu icin Equal olamiyor (degismese bile)
-        // Stringe cevirip bak ve farkli ise ilgili fieldi degistir.
-        /*
-        string nv = null;
-        string ov = null;
-        if (EditContext.SelectedTGs != null)
-            nv = string.Join(',', EditContext.SelectedTGs);
-        if (EditContext.DataItem.SelectedTGs != null)
-            ov = string.Join(',', EditContext.DataItem.SelectedTGs);
-        if (nv != ov)
-        {
-            EditContext.TGs = nv;
-            EditContext.DataItem.SelectedTGs = EditContext.SelectedTGs;
-        }
-        */
-
         // edtCtx -> oldRow and add to newValue
         db.MyTableFieldsCopy<FormEditContext, KTmodel>(EditContext, EditContext.DataItem, newValue);
 
@@ -643,24 +627,7 @@
             }
         }
     }
-    /*
-        void OnHtmlRowDecoration(DataGridHtmlRowDecorationEventArgs<KTmodel> eventArgs)
-        {
-            switch (eventArgs.RowType)
-            {
-                case DataGridHtmlRowDecorationType.DataRow:
-                    break;
-                case DataGridHtmlRowDecorationType.EditFormRow:
-                    eventArgs.CssClass += " EditForm HidePreview";
-                    // eventArgs.Style = " background-color:azure;";
-                    //eventArgs.Attributes.Add("data-editform", "aaaaa");
-                    break;
-                default:
-                    eventArgs.CssClass += " table-reflow";
-                    break;
-            }
-        }
-    */
+
     void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<KTmodel> eventArgs)
     {
         if (eventArgs.FieldName == nameof(KTmodel.Ad))

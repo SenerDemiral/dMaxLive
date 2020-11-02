@@ -14,6 +14,7 @@ namespace dMax.States
         readonly IDataAccess _dataAccess;
 
         public int curKtPageIndex = 0;
+        public int curKtID = 0;
 
         public event EventHandler StateChanged;
         private void StateHasChanged()
