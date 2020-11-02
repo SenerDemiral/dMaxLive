@@ -9,7 +9,7 @@ namespace DataLibrary
     public interface IDataAccess
     {
         List<SexModel> SexList();
-        List<SklModel> SklList();
+        List<SklModel> TtSklList();
         List<SklModel> TgSklList();
         Task<T> LoadRec<T, U>(string sql, U parameters);
         Task<List<T>> LoadData<T, U>(string sql, U parameters);

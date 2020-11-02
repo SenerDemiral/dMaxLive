@@ -74,9 +74,13 @@
             <DisplayTemplate>
                 @{
                     int id = (context as KTmodel).KtID;
-                    <NavLink class="navbar-dark" href="@($"kh/{id}/0")">
+                    <a @onclick="@(() => OnHareketClick(id))" href="javascript:void(0);">
                         <span class="badge badge-primary">H</span>
-                    </NavLink>
+                    </a>
+
+                    @*<NavLink class="navbar-dark" href="@($"kh/{id}/0")">
+                            <span class="badge badge-primary">H</span>
+                        </NavLink>*@
                 }
             </DisplayTemplate>
         </DxDataGridColumn>
@@ -247,7 +251,7 @@
                   TextFieldName="@nameof(TGmodel.Ad)"
                   ValueFieldName="@nameof(TGmodel.IDS)"
                   @bind-Values="@context.SelectedTGs"
-                  ReadOnly="true"
+                  Enabled="false"
                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
         </DxTagBox>
 
@@ -349,9 +353,9 @@
                 <DxFormLayoutItem Caption="Etiketler" ColSpanMd="12" Context="FormLayoutContext">
                     <Template>
                         <DxTagBox Data="@TgData"
-                                  TextFieldName="@nameof(TGmodel.Ad)"
-                                  ValueFieldName="@nameof(TGmodel.IDS)"
-                                  @bind-Values="@EditContext.SelectedTGs"
+                                  TextFieldName="Ad"
+                                  ValueFieldName="IDS"
+                                  @bind-Values="@(EditContext.SelectedTGs)"
                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
                         </DxTagBox>
                     </Template>
@@ -385,7 +389,7 @@
             <DxTagBox Data="@TgData"
                       TextFieldName="@nameof(TGmodel.Ad)"
                       ValueFieldName="@nameof(TGmodel.IDS)"
-                      @bind-Values="SelectedTGs"
+                      @bind-Values="FilteredTGs"
                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
             </DxTagBox>
         </Template>
@@ -393,20 +397,10 @@
 
     <DxFormLayoutItem Caption=" " ColSpanMd="4">
         <Template>
-            <button class="btn btn-primary" type="button" @onclick="@OnClick">OK</button>
+            <button class="btn btn-primary" type="button" @onclick="@OnTgFilterClick">OK</button>
         </Template>
     </DxFormLayoutItem>
 </DxFormLayout>
-
-@*<DxTagBox Data="@TgData"
-          TextFieldName="@nameof(TGmodel.Ad)"
-          ValueFieldName="@nameof(TGmodel.IDS)"
-          @bind-Values="SelectedTGs"
-          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
-</DxTagBox>
-
-
-<button class="btn btn-link" type="button" @onclick="@OnClick">OK</button>*@
 
 
 @code {
@@ -421,29 +415,29 @@
     TTmodel SelectedTT { get; set; }
 
     List<TGmodel> TgData;
+    IEnumerable<string> FilteredTGs { get; set; } // = new List<string>();
 
-    //List<string> IntList = new List<string>();
-    IEnumerable<string> SelectedTGs { get; set; } // = new List<string>();
-    string TGsFilter = "";
-
-    async Task OnClick()
+    void OnHareketClick(int ktID)
     {
-        var aaa = SelectedTGs;
-        var bbb = data[0];
+        MyAppState.curKtPageIndex = grid.PageIndex;
+        NavigationManager.NavigateTo($"kh/{ktID}/0");
+    }
+
+    async Task OnTgFilterClick()
+    {
         string filter = "";
-        if (SelectedTGs?.Count() > 0)
-            filter = string.Join(',', SelectedTGs);
+
+        if (FilteredTGs?.Count() > 0)
+            filter = string.Join(',', FilteredTGs);
+
         string sql = $"select * from KT_S({DtID}, '{filter}')";
         data = await db.LoadData<KTmodel, dynamic>(sql, new { });
-        for (int i = 0; i < data.Count; i++)
-        {
-            data[i].SelectedTGs = data[i].TgList;
-        }
 
-        //foreach (var ccc in bbb.SelectedTGs)
+        //for (int i = 0; i < data.Count; i++)
         //{
-
+        //    data[i].SelectedTGs = data[i].TgList;
         //}
+
         //IntList.Clear();
         //string names = "10,11,12";
 
@@ -452,8 +446,6 @@
         //SelectedTGs = IntList;
 
         //List<string> result = names.Split(',').ToList();
-        //SelectedTGs = result;
-
         //string combindedString = string.Join(",", SelectedTGs);
     }
 
@@ -467,22 +459,20 @@
     protected override async Task OnInitializedAsync()
     {
         DtID = MyAppState.getUsrID();
+
         string sql = $"select * from KT where DtID = {DtID}";
         data = await db.LoadData<KTmodel, dynamic>(sql, new { });
 
-        for (int i = 0; i < data.Count; i++)
-        {
-            data[i].SelectedTGs = data[i].TgList;
-        }
-        //data[0].TgList.Add("99");
-        //data[0].SelectedTGs = data[0].TgList;
+        //for (int i = 0; i < data.Count; i++)
+        //{
+        //    data[i].SelectedTGs = data[i].TgList;
+        //}
 
         // Skl=Kisi olanlar
         TtData = await db.LoadData<TTmodel, dynamic>($"select * from TT where DtID = {DtID} and Skl = 'K'", new { });
 
-        TgData = await db.LoadData<TGmodel, dynamic>($"select * from TG where DtID = {DtID} and Skl = 'K'", new { });
+        TgData = await db.LoadData<TGmodel, dynamic>($"select * from TG where DtID = {DtID} and Skl = 'K' order by Ad", new { });
 
-        //SelectedTGs = data[0].sTgList;
         /*
         string s1 = "aaaaa";
         string s2 = "şener";
@@ -515,6 +505,13 @@
         */
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            grid.PageIndex = MyAppState.curKtPageIndex;
+
+    }
+
     /*
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -536,7 +533,6 @@
     void ChangeToolbarEnabled(bool enabled)
     {
         Enabled = enabled;
-        //StateHasChanged();
         InvokeAsync(StateHasChanged);
     }
 
@@ -546,21 +542,22 @@
             SelectedRow = data?.First();
     }
 
-    void OnRowEditStarting(KTmodel dataItem)
+    void OnRowEditStarting(KTmodel curRow)
     {
         ChangeToolbarEnabled(false);
         SelectedTT = null;
 
-        if (dataItem == null)
+        if (curRow == null)   // Insert
         {
-            EditContext = new FormEditContext(dataItem);
+            EditContext = new FormEditContext(null);
         }
         else
         {
-            SelectedRow = dataItem;
-            string jsonString = JsonSerializer.Serialize(dataItem);
+            // Copy curRow to EditContext & EditContext.DataItem
+            SelectedRow = curRow;
+            string jsonString = JsonSerializer.Serialize(curRow);
             EditContext = JsonSerializer.Deserialize<FormEditContext>(jsonString);
-            EditContext.DataItem = dataItem;
+            EditContext.DataItem = curRow;
         }
 
         //EditContext = new FormEditContext(dataItem);
@@ -581,24 +578,35 @@
     {
         Dictionary<string, object> newValue = new Dictionary<string, object>();
 
-        db.MyTableFieldsCopy<FormEditContext, KTmodel>(EditContext, EditContext.DataItem, newValue);  // src -> dst and add to newValue
+        //IEnumerable<string> aaa = EditContext.SelectedTGs.ToList();
+        //EditContext.SelectedTGs = aaa;
 
-        if (newValue.ContainsKey("SelectedTGs"))
+
+        // SelectedTGs List oldugu icin Equal olamiyor (degismese bile)
+        // Stringe cevirip bak ve farkli ise ilgili fieldi degistir.
+        /*
+        string nv = null;
+        string ov = null;
+        if (EditContext.SelectedTGs != null)
+            nv = string.Join(',', EditContext.SelectedTGs);
+        if (EditContext.DataItem.SelectedTGs != null)
+            ov = string.Join(',', EditContext.DataItem.SelectedTGs);
+        if (nv != ov)
         {
-            //newValue["TGs"] = newValue["SelectedTGs"];
-            newValue.Remove("SelectedTGs");
-            newValue["TGs"] = string.Join(',', EditContext.SelectedTGs);
-            //foreach (var aaa in EditContext.SelectedTGs)
-            //{
-            //}
+            EditContext.TGs = nv;
+            EditContext.DataItem.SelectedTGs = EditContext.SelectedTGs;
         }
+        */
+
+        // edtCtx -> oldRow and add to newValue
+        db.MyTableFieldsCopy<FormEditContext, KTmodel>(EditContext, EditContext.DataItem, newValue);
 
         if (EditContext.IsNewRow)
         {
             newValue.Add("DtID", DtID);
-            var dataItem = await db.InsertRec<KTmodel>(newValue);
-            data.Add(dataItem);
-            SelectedRow = dataItem;
+            var newRow = await db.InsertRec<KTmodel>(newValue);
+            data.Add(newRow);
+            SelectedRow = newRow;
         }
         else
             await db.UpdateRec(SelectedRow, newValue);

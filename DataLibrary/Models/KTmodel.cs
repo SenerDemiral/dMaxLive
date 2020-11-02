@@ -43,21 +43,26 @@ namespace DataLibrary.Models
         public string Info { get; set; }
         public string TGs { get; set; }
 
+        [NotMapped]
         public string _Sex => Sex == "E" ? "Erkek" : "Kadın";
 
-        //public List<string> sTgList; // = new List<string>();
-        public List<string> TgList { get
+        private IEnumerable<string> _SelectedTGs;
+        [NotMapped]
+        public IEnumerable<string> SelectedTGs { 
+            get
             {
-                //sTgList = TGs?.Split(',').ToList();
-                //SelectedTGs = sTgList;
-                //return sTgList;
-                return TGs?.Split(',').ToList();
+                _SelectedTGs = TGs?.Split(',').ToList();
+                return _SelectedTGs;
             }
-            //set { }
+            set 
+            {
+                if (value == null)
+                    TGs = null;
+                else
+                    TGs = string.Join(',', value);
+                _SelectedTGs = value; 
+            }
         }
-        public IEnumerable<string> SelectedTGs { get; set; }
-
-
     }
 
     public class KTSLmodel  // KT SelectLookup of DT

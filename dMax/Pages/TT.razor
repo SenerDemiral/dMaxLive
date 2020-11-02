@@ -77,7 +77,7 @@ else
                                   TextFieldName="Ad"
                                   ValueFieldName="Skl"
                                   ListRenderMode="ListRenderMode.Virtual"
-                                  Data="@db.SklList()">
+                                  Data="@db.TtSklList()">
         </DxDataGridComboBoxColumn>
 
         <DxDataGridColumn Field=@nameof(TTmodel.Ad)
@@ -108,7 +108,7 @@ else
                         <DxComboBox @bind-Value="@EditContext.Skl"
                                   TextFieldName="Ad"
                                   ValueFieldName="Skl"
-                                    Data="@db.SklList()"/>
+                                    Data="@db.TtSklList()"/>
                     </Template>
                 </DxFormLayoutItem>
 

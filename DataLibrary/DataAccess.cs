@@ -22,7 +22,7 @@ namespace DataLibrary
         private readonly IConfiguration _config;
         private Dictionary<string, string> myTableFields = new Dictionary<string, string>();
         private List<SexModel> sexList;
-        private List<SklModel> sklList;
+        private List<SklModel> ttSklList;
         private List<SklModel> tgSklList;
 
         public DataAccess(IConfiguration config)
@@ -41,7 +41,7 @@ namespace DataLibrary
                 new SexModel { Sex = "X", Ad = "XX" }
             };
 
-            sklList = new List<SklModel>() {
+            ttSklList = new List<SklModel>() {
                 new SklModel { Skl = "K", Ad = "Kişi" },
                 new SklModel { Skl = "H", Ad = "Hareket" },
                 new SklModel { Skl = "M", Ad = "Mail" },
@@ -61,9 +61,9 @@ namespace DataLibrary
             return sexList;
         }
 
-        public List<SklModel> SklList()
+        public List<SklModel> TtSklList()
         {
-            return sklList;
+            return ttSklList;
         }
         public List<SklModel> TgSklList()
         {
@@ -115,7 +115,7 @@ namespace DataLibrary
                 {
                     sql.Append($"{(first ? "" : ",")} {n.Key} = @{n.Key} ");
                     first = false;
-
+                    // newValue yu dataItem a da koy, UI de degissin
                     dataItem.GetType().GetProperty(n.Key)?.SetValue(dataItem, n.Value);
                 }
                 var objVal = dataItem.GetType().GetProperty(keyName)?.GetValue(dataItem);
@@ -242,38 +242,33 @@ namespace DataLibrary
             return d;
         }
 
-        public void MyTableFieldsCopy<T, U>(T src, U dst, IDictionary<string, object> newValue)
+        public void MyTableFieldsCopy<T, U>(T edtCtx, U oldRow, IDictionary<string, object> newValue)
         {
             //var ts = typeof(T);
             //var td = typeof(U);
 
-            /*
-               dataItem.GetType().GetProperty(n.Key)?.SetValue(dataItem, n.Value);
-                }
-                var objVal = dataItem.GetType().GetProperty(keyName)?.GetValue(dataItem);
-            */
-            var aaa = src.GetType().GetProperties();
-
-            foreach (var pd in dst.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty))
+            // edtCtx::EditFormContext (oldRow disinda baska alanlar da var)
+            // oldRow::??model bunun uzerinden git
+            foreach (var fld in oldRow.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty))
             {
-                //Console.WriteLine($"{pd.Name} {pd.PropertyType.Name} - {pd.CanWrite}");
+                NotMappedAttribute nma = (NotMappedAttribute)fld.GetCustomAttribute(typeof(NotMappedAttribute));
 
-                if (pd.CanWrite)
+                //if (fld.Name != "SelectedTGs") // SelectedTGs Table da yok: NotMapped olarak isaretlendi
+                if (nma == null)
                 {
-                    var vs = src.GetType().GetProperty(pd.Name)?.GetValue(src);
-                    var vd = dst.GetType().GetProperty(pd.Name)?.GetValue(dst);
-
-                    if (!object.Equals(vs, vd))
+                    if (fld.CanWrite)
                     {
-                        newValue.Add(pd.Name, vs);
-                        dst.GetType().GetProperty(pd.Name)?.SetValue(dst, vs);
+                        var newVal = edtCtx.GetType().GetProperty(fld.Name)?.GetValue(edtCtx);
+                        var oldVal = oldRow.GetType().GetProperty(fld.Name)?.GetValue(oldRow);
+
+                        if (!object.Equals(newVal, oldVal))
+                        {
+                            newValue.Add(fld.Name, newVal);
+                            //oldRow.GetType().GetProperty(fld.Name)?.SetValue(oldRow, newVal); // Gerek yok, cagiran yapiyor
+                        }
                     }
                 }
-                //dst.GetType().GetProperty(ps.Name).SetValue(td, vs);
             }
-
         }
-
-
     }
 }

@@ -54,25 +54,25 @@ else
                     IconCssClass="oi oi-data-transfer-upload"
                     Enabled="@Enabled" />*@
             @if (KtID != 0)
-                {
+            {
                 <DxToolbarItem Text="@ktRec?.Ad"
-                                BeginGroup="true"
-                                Alignment="ToolbarItemAlignment.Left"
-                                CssClass="font-weight-bold font-italic text-light bg-dark"
-                                Enabled="false" />
+                               BeginGroup="true"
+                               Alignment="ToolbarItemAlignment.Left"
+                               CssClass="font-weight-bold font-italic text-light bg-dark"
+                               Enabled="false" />
 
-                }
+            }
             <DxToolbarItem Text="Filter Row"
-                            BeginGroup="true"
-                            GroupName="FilterRow"
-                            Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
-                            IconCssClass="oi oi-eye"
-                            Enabled="@Enabled" />
+                           BeginGroup="true"
+                           GroupName="FilterRow"
+                           Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
+                           IconCssClass="oi oi-eye"
+                           Enabled="@Enabled" />
             <DxToolbarItem Text="@(MyAppState.getUsrName())"
-                            BeginGroup="true"
-                            Alignment="ToolbarItemAlignment.Right"
-                            CssClass="font-italic"
-                            Enabled="false" />
+                           BeginGroup="true"
+                           Alignment="ToolbarItemAlignment.Right"
+                           CssClass="font-italic"
+                           Enabled="false" />
 
         </DxToolbar>
     </HeaderTemplate>
@@ -89,24 +89,24 @@ else
         </DxDataGridCommandColumn>
 
         <DxDataGridColumn Field=@nameof(KHmodel.KhID)
-                            Caption="ID"
-                            Width="5em"
-                            EditorVisible="false"
-                            TextAlignment="DataGridTextAlign.Center"
-                            AllowGroup="false">
+                          Caption="ID"
+                          Width="5em"
+                          EditorVisible="false"
+                          TextAlignment="DataGridTextAlign.Center"
+                          AllowGroup="false">
         </DxDataGridColumn>
 
         <DxDataGridColumn Field=@nameof(KHmodel.KhID)
-                            Caption=" "
-                            TextAlignment="DataGridTextAlign.Center"
-                            Width="3em"
-                            AllowFilter="false"
-                            AllowGroup="false"
-                            EditorVisible="false">
+                          Caption=" "
+                          TextAlignment="DataGridTextAlign.Center"
+                          Width="3em"
+                          AllowFilter="false"
+                          AllowGroup="false"
+                          EditorVisible="false">
             <DisplayTemplate>
                 @{
-                        int ktID = (context as KHmodel).KtID;
-                        int khID = (context as KHmodel).KhID;
+                    int ktID = (context as KHmodel).KtID;
+                    int khID = (context as KHmodel).KhID;
                     <NavLink class="navbar-dark" href="@($"fh/{ktID}/{khID}")">
                         <span class="badge badge-primary">D</span>
                     </NavLink>
@@ -115,38 +115,38 @@ else
         </DxDataGridColumn>
 
         <DxDataGridDateEditColumn Field=@nameof(KHmodel._EXDd)
-                                    TextAlignment="DataGridTextAlign.Center"
-                                    SortOrder="DataGridColumnSortOrder.Descending"
-                                    SortIndex="0"
-                                    Caption="Tarih"
-                                    Width="6em"
-                                    DisplayFormat="dd.MM.yy" />
+                                  TextAlignment="DataGridTextAlign.Center"
+                                  SortOrder="DataGridColumnSortOrder.Descending"
+                                  SortIndex="0"
+                                  Caption="Tarih"
+                                  Width="6em"
+                                  DisplayFormat="dd.MM.yy" />
         <DxDataGridDateEditColumn Field=@nameof(KHmodel._EXDt)
-                                    TextAlignment="DataGridTextAlign.Center"
-                                    SortOrder="DataGridColumnSortOrder.Descending"
-                                    SortIndex="1"
-                                    Width="6em"
-                                    Caption="Zaman" />
+                                  TextAlignment="DataGridTextAlign.Center"
+                                  SortOrder="DataGridColumnSortOrder.Descending"
+                                  SortIndex="1"
+                                  Width="6em"
+                                  Caption="Zaman" />
         @if (KhID < 0 || KtID == 0)
-            {
+        {
             <DxDataGridColumn Field=@nameof(KHmodel.Ad)
-                                Caption="Ad"
-                                EditorVisible="false"
-                                AllowGroup="true">
+                              Caption="Ad"
+                              EditorVisible="false"
+                              AllowGroup="true">
             </DxDataGridColumn>
-            }
+        }
 
         <DxDataGridSpinEditColumn Field=@nameof(KHmodel.KiloKg)
-                                    Caption="KiloKg"
-                                    Width="6em"
-                                    TextAlignment="DataGridTextAlign.Center"
-                                    DisplayFormat="###.#" />
+                                  Caption="KiloKg"
+                                  Width="6em"
+                                  TextAlignment="DataGridTextAlign.Center"
+                                  DisplayFormat="###.#" />
 
         <DxDataGridSpinEditColumn Field=@nameof(KHmodel.HedefKg)
-                                    Caption="HedefKg"
-                                    Width="6em"
-                                    TextAlignment="DataGridTextAlign.Center"
-                                    DisplayFormat="###.#" />
+                                  Caption="HedefKg"
+                                  Width="6em"
+                                  TextAlignment="DataGridTextAlign.Center"
+                                  DisplayFormat="###.#" />
 
         @*<DxDataGridSpinEditColumn Field=@nameof(KHmodel.KasKg)
                                         Caption="KasKg"
@@ -161,14 +161,14 @@ else
                                         DisplayFormat="F1" />*@
 
         <DxDataGridSpinEditColumn Field=@nameof(KHmodel.BMI)
-                                    Caption="BMI"
-                                    TextAlignment="DataGridTextAlign.Center"
-                                    Width="6em"
-                                    DisplayFormat="###.#" />
+                                  Caption="BMI"
+                                  TextAlignment="DataGridTextAlign.Center"
+                                  Width="6em"
+                                  DisplayFormat="###.#" />
 
         <DxDataGridColumn Field=@nameof(KHmodel.BMIRad)
-                            Caption="BMI Range"
-                            EditorVisible="false" />
+                          Caption="BMI Range"
+                          EditorVisible="false" />
     </Columns>
 
     <DetailRowTemplate>
@@ -231,9 +231,13 @@ else
                 <span class="oi oi-envelope-closed" aria-hidden="true"></span> eMail
             </button>
 
-            @*<DxMemo Text="@context.Info"
-                ReadOnly="true"
-                ResizeMode="MemoResizeMode.Vertical" />*@
+            <DxTagBox Data="@TgData"
+                      TextFieldName="@nameof(TGmodel.Ad)"
+                      ValueFieldName="@nameof(TGmodel.IDS)"
+                      @bind-Values="@context.SelectedTGs"
+                      Enabled="false"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+            </DxTagBox>
         }
     </DetailRowTemplate>
 
@@ -323,6 +327,17 @@ else
                     </Template>
                 </DxFormLayoutItem>
 
+                <DxFormLayoutItem Caption="Etiketler" ColSpanMd="12" Context="FormLayoutContext">
+                    <Template>
+                        <DxTagBox Data="@TgData"
+                                  TextFieldName="@nameof(TGmodel.Ad)"
+                                  ValueFieldName="@nameof(TGmodel.IDS)"
+                                  @bind-Values="@EditContext.SelectedTGs"
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                        </DxTagBox>
+                    </Template>
+                </DxFormLayoutItem>
+
                 <DxFormLayoutItem ColSpanMd="12" Context="FormLayoutContext">
                     <Template>
                         <ValidationSummary />
@@ -342,6 +357,24 @@ else
 
 </DxDataGrid>
 
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
+    <DxFormLayoutItem Caption="Etiket ara" ColSpanMd="8">
+        <Template>
+            <DxTagBox Data="@TgData"
+                      TextFieldName="@nameof(TGmodel.Ad)"
+                      ValueFieldName="@nameof(TGmodel.IDS)"
+                      @bind-Values="SelectedTGs"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+            </DxTagBox>
+        </Template>
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption=" " ColSpanMd="4">
+        <Template>
+            <button class="btn btn-primary" type="button" @onclick="@OnTgFilterClick">OK</button>
+        </Template>
+    </DxFormLayoutItem>
+</DxFormLayout>
 
 
 <DxPopup HeaderText="Silmek istediğinizden emin misiniz?"
@@ -352,15 +385,6 @@ else
         <button class="btn btn-link" type="button" @onclick="@(() => DeletePopupVisible = false)">Cancel</button>
     </div>
 </DxPopup>
-
-<p>@MailMsg</p>
-
-@*<PopupConfirm OnClick="ClickHandler" PopupVisible="@PopupVisible" HeaderText="Emin misiniz?"></PopupConfirm>
-    public void ClickHandler(bool result)
-    {
-        PopupVisible = false;
-    }
-*@
 
 <DxPopup HeaderText="@PopupHeader"
          @bind-Visible="@PopupVisible">
@@ -377,7 +401,6 @@ else
     [Parameter]
     public int KhID { get; set; }
     bool DeletePopupVisible { get; set; } = false;
-    string MailMsg = "";
 
     protected bool PopupVisible { get; set; } = false;
     protected string PopupHeader { get; set; }
@@ -394,6 +417,20 @@ else
 
     List<TTmodel> TtData;
     TTmodel SelectedTT { get; set; }
+
+    List<TGmodel> TgData;
+    IEnumerable<string> SelectedTGs { get; set; } // = new List<string>();
+
+    async Task OnTgFilterClick()
+    {
+        string filter = "";
+
+        if (SelectedTGs?.Count() > 0)
+            filter = string.Join(',', SelectedTGs);
+
+        string sql = $"select * from KH_S({DtID}, {KtID}, {KhID}, '{filter}')";
+        data = await db.LoadData<KHmodel, dynamic>(sql, new { });
+    }
 
     protected void SelectedTtChanged(TTmodel dataItem)
     {
@@ -425,10 +462,10 @@ else
         //await Task.Delay(1);    // Use await Task.Delay(1) or await Task.Yield(); to flush changes
         string sql = $"select * from KH_S({DtID}, {KtID}, {KhID})";
         data = await db.LoadData<KHmodel, dynamic>(sql, new { });
-        //SetSelection();
         // Skl=Hareket olanlar
         TtData = await db.LoadData<TTmodel, dynamic>($"select * from TT where DtID = {DtID} and Skl = 'H'", new { });
-        //SelectedTT = TtData[0];
+
+        TgData = await db.LoadData<TGmodel, dynamic>($"select * from TG where DtID = {DtID} and Skl = 'H' order by Ad", new { });
 
         ktRec = await db.LoadRec<KTmodel, dynamic>("select Ad from KT where KtID = @KtID", new { KtID = KtID });
         //await InvokeAsync(StateHasChanged);
@@ -572,27 +609,6 @@ else
                     eventArgs.CssClass += " table-reflow";
                     break;
             }
-        }
-    }
-
-    void OnHtmlRowDecoration2(DataGridHtmlRowDecorationEventArgs<KHmodel> eventArgs)
-    {
-        switch (eventArgs.RowType)
-        {
-            case DataGridHtmlRowDecorationType.DataRow:
-                break;
-            case DataGridHtmlRowDecorationType.DetailRow:
-                eventArgs.Style = "background-color: lightgoldenrodyellow;";
-                break;
-            case DataGridHtmlRowDecorationType.GroupRow:
-                break;
-            case DataGridHtmlRowDecorationType.EditFormRow:
-                eventArgs.CssClass += " EditForm HidePreview";
-                //eventArgs.Style = "background-color: ghostwhite";
-                break;
-            default:
-                eventArgs.CssClass += " table-reflow";
-                break;
         }
     }
 
