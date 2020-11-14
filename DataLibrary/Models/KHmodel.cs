@@ -42,6 +42,8 @@ namespace DataLibrary.Models
         public string Mail;
 
         [NotMapped]
+        public string InfoHtml;
+        [NotMapped]
         public DateTime? _EXDd => EXD?.Date;
         [NotMapped]
         public string _EXDt => EXD?.ToString("HH:mm");
@@ -88,5 +90,12 @@ namespace DataLibrary.Models
                 _SelectedTGs = value;
             }
         }
+    }
+
+    public class KHrprModel
+		{
+        public DateTime? EXD { get; set; }
+        public string Info { get; set; }
+
     }
 }

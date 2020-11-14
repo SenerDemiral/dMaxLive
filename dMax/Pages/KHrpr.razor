@@ -4,73 +4,96 @@
 @inject IDataAccess db
 @inject MyAppState MyAppState
 
-<p>
-		@((MarkupString)customHTML)
-</p>
+<h4><strong>@ktRow.Ad</strong> @ktRow.Sex/@KisiYas</h4>
+
+<DxTagBox Data="@TgData"
+					TextFieldName="@nameof(TGmodel.Ad)"
+					ValueFieldName="@nameof(TGmodel.IDS)"
+					@bind-Values="@ktRow.SelectedTGs"
+					Enabled="false">
+</DxTagBox>
+<br />
+
+<table class="table table-bordered">
+		<tbody>
+				@foreach (KHrprModel row in data)
+				{
+						@if (!string.IsNullOrEmpty(row.Info))
+						{
+								<tr>
+										<td>@row.EXD?.ToString("dd.MM.yy")</td>
+										<td>@((MarkupString)row.Info)</td>
+								</tr>
+						}
+				}
+		</tbody>
+</table>
+
+@*<p>
+				@((MarkupString)customHTML)
+		</p>*@
 
 @code {
 		[Parameter]
 		public int KtID { get; set; }
 		protected int DtID;
 
+		List<KHrprModel> data = new List<KHrprModel>();
+		List<KHmodel> dataKH;
+		List<TGmodel> TgData;
+		KTmodel ktRow;
+		string Kisi;
+		int? KisiYas;
+
 		string customHTML = "<p>This is a <strong>custom HTML</strong> code</p>";
 
 		protected override void OnInitialized()
 		{
-				//await Task.Delay(1);
 				DtID = MyAppState.getUsrID();
 		}
 
 		protected override async Task OnParametersSetAsync()
 		{
-				// Buraya iki sekilde de girildigi icin OnInitialized da yapma
-				//await Task.Delay(1);    // Use await Task.Delay(1) or await Task.Yield(); to flush changes
 				string sql = $"select * from KH where DtID = {DtID} and KtID = {KtID} order by EXD desc";
-				List<KHmodel> data = await db.LoadData<KHmodel, dynamic>(sql, new { });
+				dataKH = await db.LoadData<KHmodel, dynamic>(sql, new { });
 
-				KTmodel kt = await db.LoadRec<KTmodel, dynamic>($"select * from KT where KtID = {KtID}", new { });
+				ktRow = await db.LoadRec<KTmodel, dynamic>($"select * from KT where KtID = {KtID}", new { });
 
-				System.Text.StringBuilder sb = new();
 
-				int? yas = DateTime.Today.Year - kt.DgmTrh?.Year;
+				KisiYas = DateTime.Today.Year - ktRow.DgmTrh?.Year;
 
-				sb.Append($"<h4><strong>{kt.Ad}</strong> {kt.Sex}/{yas}</h4>");
+				//System.Text.StringBuilder sb = new();
+				//sb.Append($"<h4><strong>{ktRow.Ad}</strong> {ktRow.Sex}/{yas}</h4>");
+				//sb.Append("<br/>");
 
-				foreach (var row in data)
+				foreach (var row in dataKH)
 				{
 						if (!string.IsNullOrEmpty(row.Info))
 						{
-								sb.Append("<hr/>");
-								sb.Append($"<h5><strong>{row.EXD:dd.MM.yy}</strong></h5>");
-								sb.Append("<hr/>");
+								//sb.Append($"<h5><strong>{row.EXD:dd.MM.yy}</strong></h5>");
 
-								sb.Append(row.Info.Trim('\n'));
-								sb.Append("<br/>");
-								sb.Append("<br/>");
+								//row.InfoHtml = row.Info.Trim('\n').Replace("\n", "<br/>");
+								data.Add(new KHrprModel { EXD = row.EXD, Info = row.Info.Trim('\n').Replace("\n", "<br/>") });
+
+								//sb.Append(row.Info.Trim('\n'));
+								//sb.Append("<hr/>");
 						}
 				}
 
-				if (!string.IsNullOrEmpty(kt.Info))
+				if (!string.IsNullOrEmpty(ktRow.Info))
 				{
-						sb.Append("<hr/>");
-						sb.Append("<h5><strong>Kişi Genel Bilgileri</strong></h5>");
-						sb.Append("<hr/>");
+						//sb.Append("<h5><strong>Kişi Genel Bilgileri</strong></h5>");
 
-						sb.Append(kt.Info.Trim('\n'));
-						sb.Append("<br/>");
-						sb.Append("<br/>");
+						data.Add(new KHrprModel { EXD = ktRow.EXD, Info = ktRow.Info.Trim('\n').Replace("\n", "<br/>") });
+
+						//sb.Append(ktRow.Info.Trim('\n'));
+						//sb.Append("<hr/>");
 				}
 
-				sb.Replace("\n", "<br/>");
+				//sb.Replace("\n", "<br/>");
 
-				customHTML = sb.ToString();
+				//customHTML = sb.ToString();
 
-				// Skl=Hareket olanlar
-				//TtData = await db.LoadData<TTmodel, dynamic>($"select * from TT where DtID = {DtID} and Skl = 'H'", new { });
-
-				//TgData = await db.LoadData<TGmodel, dynamic>($"select * from TG where DtID = {DtID} and Skl = 'H' order by Ad", new { });
-
-				//ktRec = await db.LoadRec<KTmodel, dynamic>("select Ad from KT where KtID = @KtID", new { KtID = KtID });
-				////await InvokeAsync(StateHasChanged);
+				TgData = await db.LoadData<TGmodel, dynamic>($"select * from TG where DtID = {DtID} and Skl = 'K' order by Ad", new { });
 		}
 }
