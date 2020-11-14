@@ -12,8 +12,6 @@
 <DxDataGrid @ref="@grid"
             Data="@data"
             KeyFieldName="KtID"
-            ShowFilterRow="@ShowFilterRow"
-            InnerComponentSizeMode="SizeMode.Small"
             @bind-SingleSelectedDataRow="@SelectedRow"
             EditMode="DataGridEditMode.EditForm"
             RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
@@ -24,6 +22,7 @@
             PagerAllDataRowsItemVisible="false"
             PagerAllowedPageSizes=@(new int[] {5,10,20,40,100})
             PageSize="5"
+            PageIndex="@PageIndex"
             PageIndexChanged="@OnPageIndexChanged"
             PagerNavigationMode=PagerNavigationMode.InputBox
             HtmlRowDecoration="@OnHtmlRowDecoration"
@@ -31,7 +30,10 @@
             SelectionMode="DataGridSelectionMode.SingleSelectedDataRow"
             ShowGroupPanel="true"
             ShowDetailRow="true"
+            ShowFilterRow="@ShowFilterRow"
+            InnerComponentSizeMode="SizeMode.Small"
             CssClass="MyGrid">
+
     <HeaderTemplate>
         <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
             <DxToolbarItem Text="Filter Row"
@@ -411,6 +413,8 @@
     bool ShowFilterRow = false;
     //KTmodel SelectedRow;
 
+    int PageIndex { get; set; } = 0;
+
     KTmodel selectedRow;
     public KTmodel SelectedRow
     {
@@ -419,7 +423,7 @@
         {
             selectedRow = value;
             MyAppState.curKtID = selectedRow.KtID;
-            InvokeAsync(StateHasChanged);
+            //InvokeAsync(StateHasChanged);
         }
     }
 
@@ -431,17 +435,9 @@
     List<TGmodel> TgData;
     IEnumerable<string> FilteredTGs { get; set; } // = new List<string>();
 
-    void OnSelectedDataRowChanged()
-    {
-
-    }
-
     void OnPageIndexChanged(int newPageIndex)
     {
         MyAppState.curKtPageIndex = newPageIndex;
-        //if (SelectedRow != null)
-        //    MyAppState.curKtID = SelectedRow.KtID;
-        //grid.SetDataRowSelectedByKey(MyAppState.curKtID, true);
     }
 
     void OnHareketClick(int ktID)
@@ -449,9 +445,28 @@
         NavigationManager.NavigateTo($"kh/{ktID}/0");
     }
 
+    private static string CreateRandomPassword(int length = 15)
+    {
+        // Create a string of characters, numbers, special characters that allowed in the password 
+        // string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*?_-";
+        string validChars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789@#$%&*?";
+        Random random = new Random();
+
+        // Select one random character at a time from the string  
+        // and create an array of chars  
+        char[] chars = new char[length];
+        for (int i = 0; i < length; i++)
+        {
+            chars[i] = validChars[random.Next(0, validChars.Length)];
+        }
+        return new string(chars);
+    }
+
     async Task OnTgFilterClick()
     {
         string filter = "";
+
+        //string pwd = CreateRandomPassword(6);
 
         if (FilteredTGs?.Count() > 0)
             filter = string.Join(',', FilteredTGs);
@@ -528,7 +543,7 @@
     {
         if (firstRender)
         {
-            grid.PageIndex = MyAppState.curKtPageIndex;
+            PageIndex = MyAppState.curKtPageIndex;
             if (MyAppState.curKtID > 0)
                 grid.SetDataRowSelectedByKey(MyAppState.curKtID, true);
         }
@@ -538,12 +553,6 @@
     {
         Enabled = enabled;
         InvokeAsync(StateHasChanged);
-    }
-
-    void SetSelection()
-    {
-        if (data.Count > 0)
-            SelectedRow = data?.First();
     }
 
     void OnRowEditStarting(KTmodel curRow)

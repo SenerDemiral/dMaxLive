@@ -5,7 +5,7 @@
 @inject MyAppState MyAppState
 @using System.Text.Json;
 
-<h4><span class="badge badge-info"> Şablonlar </span></h4>
+<h4><span class="badge badge-info"> Etiketler </span></h4>
 
 @if (data == null)
 {
@@ -100,6 +100,7 @@ else
                             <DxComboBox @bind-Value="@EditContext.Skl"
                                         TextFieldName="Ad"
                                         ValueFieldName="Skl"
+                                        Enabled="@EditContext.IsNewRow"
                                         Data="@db.TgSklList()" />
                         </Template>
                     </DxFormLayoutItem>

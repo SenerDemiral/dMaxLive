@@ -38,43 +38,52 @@ else
             CssClass="MyGrid">
 
     <HeaderTemplate>
-        <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
-            @*<DxToolbarItem Text="New"
-                                BeginGroup="true"
-                                Click="@(async() => await grid.StartRowEdit(null))"
-                                IconCssClass="oi oi-plus"
-                                Enabled="@Enabled" />
-                <DxToolbarItem Text="Edit"
-                                Click="@(async() => await grid.StartRowEdit(SelectedRow))"
-                                IconCssClass="oi oi-pencil"
-                                Enabled="@Enabled" />
-                <DxToolbarItem Text="Döküman"
-                    BeginGroup="true"
-                    Click="@OnDocumentsClick"
-                    IconCssClass="oi oi-data-transfer-upload"
-                    Enabled="@Enabled" />*@
-            @if (KtID != 0)
-            {
-                <DxToolbarItem Text="@ktRec?.Ad"
-                               BeginGroup="true"
-                               Alignment="ToolbarItemAlignment.Left"
-                               CssClass="font-weight-bold font-italic text-light bg-dark"
-                               Enabled="false" />
+				<DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Contained">
+						@if (KtID != 0)
+						{
+								<DxToolbarItem>
+										<NavLink class="navbar-dark" href="@($"khrpr/{KtID}")" target="_blank">
+												<span class="badge badge-primary">Print</span>
+										</NavLink>
+								</DxToolbarItem>
+						}
 
-            }
-            <DxToolbarItem Text="Filter Row"
-                           BeginGroup="true"
-                           GroupName="FilterRow"
-                           Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
-                           IconCssClass="oi oi-eye"
-                           Enabled="@Enabled" />
-            <DxToolbarItem Text="@(MyAppState.getUsrName())"
-                           BeginGroup="true"
-                           Alignment="ToolbarItemAlignment.Right"
-                           CssClass="font-italic"
-                           Enabled="false" />
+								@*<DxToolbarItem Text="New"
+														BeginGroup="true"
+														Click="@(async() => await grid.StartRowEdit(null))"
+														IconCssClass="oi oi-plus"
+														Enabled="@Enabled" />
+						<DxToolbarItem Text="Edit"
+														Click="@(async() => await grid.StartRowEdit(SelectedRow))"
+														IconCssClass="oi oi-pencil"
+														Enabled="@Enabled" />
+						<DxToolbarItem Text="Döküman"
+								BeginGroup="true"
+								Click="@OnDocumentsClick"
+								IconCssClass="oi oi-data-transfer-upload"
+								Enabled="@Enabled" />*@
+								@if (KtID != 0)
+								{
+										<DxToolbarItem Text="@ktRec?.Ad"
+																	 BeginGroup="true"
+																	 Alignment="ToolbarItemAlignment.Left"
+																	 CssClass="font-weight-bold font-italic text-light bg-dark"
+																	 Enabled="false" />
 
-        </DxToolbar>
+								}
+								<DxToolbarItem Text="Filter Row"
+															 BeginGroup="true"
+															 GroupName="FilterRow"
+															 Click="@((ToolbarItemClickEventArgs e) => ShowFilterRow = !ShowFilterRow)"
+															 IconCssClass="oi oi-eye"
+															 Enabled="@Enabled" />
+								<DxToolbarItem Text="@(MyAppState.getUsrName())"
+															 BeginGroup="true"
+															 Alignment="ToolbarItemAlignment.Right"
+															 CssClass="font-italic"
+															 Enabled="false" />
+
+						</DxToolbar>
     </HeaderTemplate>
 
     <Columns>
@@ -160,8 +169,6 @@ else
     </Columns>
 
     <DetailRowTemplate>
-        @{
-            //KHmodel mdl = context.DataItem;
             <div>
                 <table cellpadding="5" cellspacing="0">
                     <tbody>
@@ -224,9 +231,9 @@ else
                       ValueFieldName="@nameof(TGmodel.IDS)"
                       @bind-Values="@context.SelectedTGs"
                       Enabled="false"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                      >
             </DxTagBox>
-        }
+
     </DetailRowTemplate>
 
     <EditFormTemplate>
