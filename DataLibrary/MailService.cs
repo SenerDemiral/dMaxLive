@@ -8,11 +8,19 @@ using MailKit;
 using DataLibrary.Models;
 using MailKit.Security;
 using System.Threading.Tasks;
+using System.Globalization;
+using System.Net.Mime;
 
 namespace DataLibrary
 {
     public class MailService : IMailService
     {
+        readonly IDataAccess _dataAccess;
+
+        public MailService(IDataAccess dataAccess)
+        {
+            _dataAccess = dataAccess;
+        }
         public async Task SendEmailAsync(MailRequest mailRequest)
         {
             var email = new MimeMessage();
@@ -20,7 +28,7 @@ namespace DataLibrary
             email.To.Add(MailboxAddress.Parse(mailRequest.ToEmail));
             email.Subject = $"Sayın {mailRequest.Subject}";
             var builder = new BodyBuilder();
-            /*
+						/*
             if (mailRequest.Attachments != null)
             {
                 byte[] fileBytes;
@@ -37,8 +45,20 @@ namespace DataLibrary
                     }
                 }
             }*/
-            //builder.HtmlBody = mailRequest.Body;
-            builder.TextBody = mailRequest.Body;
+
+						if (mailRequest.Attachments != null)
+						{
+								foreach (var file in mailRequest.Attachments)
+								{
+										if (file.Attachment.Length > 0)
+										{
+                        builder.Attachments.Add(file.Name, file.Attachment);
+										}
+								}
+						}
+
+						//builder.HtmlBody = mailRequest.Body;
+						builder.TextBody = mailRequest.Body;
             email.Body = builder.ToMessageBody();
             using var smtp = new SmtpClient();
             smtp.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
@@ -62,6 +82,38 @@ namespace DataLibrary
 
             return body;
         }
+
+        public async Task SentCSVs(int DtID)
+        {
+            MailRequest mr = new MailRequest();
+
+            mr.Body = "Backup Attachments";
+            mr.Subject = "dMax Backup";
+            mr.ToEmail = "sener.demiral@gmail.com";
+
+            mr.DtID = DtID;
+            mr.KtID = 0;
+            mr.KhID = 0;
+
+            //MemoryStream ms = await KtCSV(DtID);
+            //ms.Position = 0;
+
+            //mr.Attachments = new List<MemoryStream>();
+            mr.Attachments = new List<MailAttachment>();
+            
+            MailAttachment ma = new MailAttachment();
+            ma.Name = "KisiTanim.csv";
+            ma.Attachment = await _dataAccess.KtCSV(DtID);
+            mr.Attachments.Add(ma);
+
+            ma = new MailAttachment();
+            ma.Name = "KisiHareket.csv";
+            ma.Attachment = await _dataAccess.KtCSV(DtID);
+            mr.Attachments.Add(ma);
+
+            await SendEmailAsync(mr);
+        }
+
     }
 
 

@@ -1,5 +1,5 @@
 ﻿@layout PrintLayout
-@page "/khrpr2/{KtID:int}"
+@page "/khrpr/{KtID:int}"
 
 @inject IDataAccess db
 @inject MyAppState MyAppState
@@ -10,13 +10,53 @@
 					TextFieldName="@nameof(TGmodel.Ad)"
 					ValueFieldName="@nameof(TGmodel.IDS)"
 					@bind-Values="@ktRow.SelectedTGs"
-					Enabled="false">
+					ReadOnly="true">
 </DxTagBox>
 <br />
 
-<p>
-		@((MarkupString)customHTML)
-</p>
+@*<table class="table table-bordered">
+				<tbody>
+						@foreach (KHrprModel row in data)
+						{
+								@if (!string.IsNullOrEmpty(row.Info))
+								{
+										<tr>
+												<td>@row.EXD?.ToString("dd.MM.yy")</td>
+												<td>@((MarkupString)row.Info)</td>
+										</tr>
+								}
+						}
+				</tbody>
+		</table>*@
+
+@*<ul class="list-group">
+		@foreach (KHrprModel row in data)
+		{
+				@if (!string.IsNullOrEmpty(row.Info))
+				{
+						<li class="list-group-item">
+								<div><h5>@row.EXD?.ToString("dd.MM.yy")</h5></div>
+								<div>@((MarkupString)row.Info)</div>
+						</li>
+				}
+		}
+</ul>*@
+
+@foreach (KHrprModel row in data)
+{
+		@if (!string.IsNullOrEmpty(row.Info))
+		{
+				<div class="card">
+						<div class="card-header">
+								@row.EXD?.ToString("dd.MM.yy")
+						</div>
+						<div class="card-body">
+								<p class="card-text">@((MarkupString)row.Info)</p>
+						</div>
+				</div>
+				<br />
+		}
+}
 
 @code {
 		[Parameter]
@@ -40,42 +80,26 @@
 		{
 				string sql = $"select * from KH where DtID = {DtID} and KtID = {KtID} order by EXD desc";
 				dataKH = await db.LoadData<KHmodel, dynamic>(sql, new { });
-
 				ktRow = await db.LoadRec<KTmodel, dynamic>($"select * from KT where KtID = {KtID}", new { });
 
-
 				KisiYas = DateTime.Today.Year - ktRow.DgmTrh?.Year;
-
-				System.Text.StringBuilder sb = new();
 
 				foreach (var row in dataKH)
 				{
 						if (!string.IsNullOrEmpty(row.Info))
 						{
-								sb.Append($"<h5><strong>{row.EXD:dd.MM.yy}</strong></h5>");
-
-								//row.InfoHtml = row.Info.Trim('\n').Replace("\n", "<br/>");
-								//data.Add(new KHrprModel { EXD = row.EXD, Info = row.Info.Trim('\n').Replace("\n", "<br/>") });
-
-								sb.Append(row.Info.Trim('\n'));
-								sb.Append("<hr/>");
+								data.Add(new KHrprModel { EXD = row.EXD, Info = row.Info.Trim('\n').Replace("\n", "<br/>") });
 						}
 				}
 
 				if (!string.IsNullOrEmpty(ktRow.Info))
 				{
-						sb.Append("<h5><strong>Kişi Genel Bilgileri</strong></h5>");
-
-						//data.Add(new KHrprModel { EXD = ktRow.EXD, Info = ktRow.Info.Trim('\n').Replace("\n", "<br/>") });
-
-						sb.Append(ktRow.Info.Trim('\n'));
-						sb.Append("<hr/>");
+						data.Add(new KHrprModel { EXD = ktRow.EXD, Info = ktRow.Info.Trim('\n').Replace("\n", "<br/>") });
 				}
 
-				sb.Replace("\n", "<br/>");
 
-				customHTML = sb.ToString();
 
 				TgData = await db.LoadData<TGmodel, dynamic>($"select * from TG where DtID = {DtID} and Skl = 'K' order by Ad", new { });
 		}
+
 }

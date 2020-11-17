@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using DataLibrary.Models;
@@ -23,5 +24,7 @@ namespace DataLibrary
         (bool ok, string ad) Login(MyAppStateModel appState);
 
         void MyTableFieldsCopy<T, U>(T src, U dst, IDictionary<string, object> newValue);
+
+        Task<MemoryStream> KtCSV(int DtID);
     }
 }

@@ -9,6 +9,8 @@ namespace DataLibrary
     {
         Task SendEmailAsync(Models.MailRequest mailRequest);
         string MailMergeKH(Models.KHmodel rec, string sablon);
+
+        Task SentCSVs(int DtID);
     }
 
 

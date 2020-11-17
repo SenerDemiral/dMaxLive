@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -267,5 +269,57 @@ namespace DataLibrary
                 }
             }
         }
+
+
+        public async Task<MemoryStream> KtCSV(int DtID)
+        {
+
+            string sql = $"select * from KT where DtID = {DtID}";
+            List<KTmodel> data = await LoadData<KTmodel, dynamic>(sql, new { });
+            //using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+
+            StringBuilder sb = new StringBuilder();
+
+            //sb.Append('\uFEFF');    // U+FEFF is the byte-order mark (BOM) character
+            sb.Append("ID,Ad,Sex,DgmTrh,Mail,Tel,Info");
+            sb.AppendLine();
+
+            foreach (var row in data)
+						{
+                sb.Append($"{row.KtID}");
+                sb.Append(",");
+                sb.Append($"\"{row.Ad}\"");
+                sb.Append(",");
+                sb.Append($"\"{row.Sex}\"");
+                sb.Append(",");
+                sb.Append($"{row.DgmTrh:dd.MM.yyyy}");
+                sb.Append(",");
+                sb.Append($"\"{row.Mail}\"");
+                sb.Append(",");
+                sb.Append($"\"{row.Tel}\"");
+                sb.Append(",");
+                sb.Append($"\"{row.Info?.Replace("\"", "\"\"")}\"");
+                //sb.Append($"\"{row.Info?.Replace("\"", "\"\"")}\"").Replace("\n", "\"\n\"");
+                sb.AppendLine();
+            }
+
+            //MemoryStream stream = new MemoryStream();
+            //FileStream stream = new FileStream("C:\\Net5.0\\sener.csv", FileMode.Create);
+            //using (var writer = new StreamWriter(stream, System.Text.Encoding.UTF8))
+            //{
+            //    writer.Write(sb.ToString());
+            //}
+
+            //using 
+            var ms = new MemoryStream();
+            //using 
+            var writer = new StreamWriter(ms, Encoding.UTF8);
+
+            writer.Write(sb.ToString());
+            writer.Flush();
+            ms.Position = 0;
+            return ms;
+        }
+
     }
 }
