@@ -10,6 +10,7 @@ using MailKit.Security;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Net.Mime;
+using System.IO.Compression;
 
 namespace DataLibrary
 {
@@ -66,6 +67,7 @@ namespace DataLibrary
             await smtp.SendAsync(email);
             smtp.Disconnect(true);
         }
+
         public string MailMergeKH(KHmodel rec, string sablon)
         {
             string body = sablon
@@ -87,35 +89,63 @@ namespace DataLibrary
         {
             MailRequest mr = new MailRequest();
 
-            mr.Body = "Backup Attachments";
-            mr.Subject = "dMax Backup";
-            mr.ToEmail = "sener.demiral@gmail.com";
+            var dtRec = _dataAccess.GetDTrec(DtID);
+            mr.Body = "Data yedekleriniz ektedir.";
+            mr.Subject = dtRec.Ad;
+            mr.ToEmail = dtRec.Mail;
 
             mr.DtID = DtID;
             mr.KtID = 0;
             mr.KhID = 0;
 
-            //MemoryStream ms = await KtCSV(DtID);
-            //ms.Position = 0;
-
-            //mr.Attachments = new List<MemoryStream>();
             mr.Attachments = new List<MailAttachment>();
             
-            MailAttachment ma = new MailAttachment();
-            ma.Name = "KisiTanim.csv";
-            ma.Attachment = await _dataAccess.KtCSV(DtID);
-            mr.Attachments.Add(ma);
+            ////MailAttachment ma = new MailAttachment();
+            ////ma.Name = "KisiTanim.csv";
+            ////ma.Attachment = await _dataAccess.KtCSV(DtID);
+            ////mr.Attachments.Add(ma);
 
-            ma = new MailAttachment();
-            ma.Name = "KisiHareket.csv";
-            ma.Attachment = await _dataAccess.KtCSV(DtID);
+            ////ma = new MailAttachment();
+            ////ma.Name = "KisiHareket.csv";
+            ////ma.Attachment = await _dataAccess.KhCSV(DtID);
+            ////mr.Attachments.Add(ma);
+
+            Dictionary<string, byte[]> Files = new Dictionary<string, byte[]>();
+            
+            var ms = await _dataAccess.KtCSV(DtID);
+            Files.Add("KT.csv", ms.ToArray());
+            ms = await _dataAccess.KhCSV(DtID);
+            Files.Add("KH.csv", ms.ToArray());
+
+            var ma = new MailAttachment();
+            ma.Name = "Data.zip";
+
+            //MemoryStream stream = new MemoryStream(ZipFiles(Files));
+            //ma.Attachment = stream;
+            ma.Attachment = ZipFiles(Files);
             mr.Attachments.Add(ma);
 
             await SendEmailAsync(mr);
         }
 
+        public static byte[] ZipFiles(Dictionary<string, byte[]> files)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ZipArchive archive = new ZipArchive(ms, ZipArchiveMode.Update))
+                {
+                    foreach (var file in files)
+                    {
+                        ZipArchiveEntry orderEntry = archive.CreateEntry(file.Key); //create a file with this name
+                        using (BinaryWriter writer = new BinaryWriter(orderEntry.Open()))
+                        {
+                            writer.Write(file.Value); //write the binary data
+                        }
+                    }
+                }
+                //ZipArchive must be disposed before the MemoryStream has data
+                return ms.ToArray();
+            }
+        }
     }
-
-
-
 }

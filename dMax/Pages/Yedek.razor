@@ -1,0 +1,26 @@
+﻿@page "/yedek"
+@inject IMailService MailService
+@inject MyAppState MyAppState
+
+<h3>Yedek</h3>
+<DxButton RenderStyle="ButtonRenderStyle.Warning" Click="@OnYedekClick" Text="@YdkBtnText" Enabled="@YdkBtnEnabled" />
+
+@code {
+		private int DtID = 0;
+		private bool YdkBtnEnabled = true;
+		string YdkBtnText = "Bilgilerimi Mail adresime gönder";
+
+		async Task OnYedekClick()
+		{
+				YdkBtnEnabled = false;
+				await Task.Delay(1);
+				await MailService.SentCSVs(DtID);
+				YdkBtnText = "Gönderildi";
+		}
+
+		protected override void OnInitialized()
+		{
+				DtID = MyAppState.getUsrID();
+		}
+
+}

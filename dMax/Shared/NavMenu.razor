@@ -3,17 +3,18 @@
 
 
 <DxTreeView AllowSelectNodes="true" CssClass="app-sidebar" @key="@usrID">
-    <Nodes>
-        <DxTreeViewNode NavigateUrl="" Text="" IconCssClass="oi oi-home mb-0"></DxTreeViewNode>
-        @if (usrID > 0 && usrID < 1000)
-        {
-            <DxTreeViewNode NavigateUrl="kt" Text="Kişiler" BadgeText="K"></DxTreeViewNode>
-            <DxTreeViewNode NavigateUrl="kh/0/0" Text="Hareketler" BadgeText="H"></DxTreeViewNode>
-            <DxTreeViewNode NavigateUrl="bmir" Text="BMI Ranges" BadgeText="B"></DxTreeViewNode>
-            <DxTreeViewNode NavigateUrl="tt" Text="Şablonlar" BadgeText="Ş"></DxTreeViewNode>
-            <DxTreeViewNode NavigateUrl="tg" Text="Etiketler" BadgeText="E"></DxTreeViewNode>
-        }
-    </Nodes>
+		<Nodes>
+				<DxTreeViewNode NavigateUrl="" Text="" IconCssClass="oi oi-home mb-0"></DxTreeViewNode>
+				@if (usrID > 0 && usrID < 1000)
+				{
+						<DxTreeViewNode NavigateUrl="kt" Text="Kişiler" BadgeText="K"></DxTreeViewNode>
+						<DxTreeViewNode NavigateUrl="kh/0/0" Text="Hareketler" BadgeText="H"></DxTreeViewNode>
+						<DxTreeViewNode NavigateUrl="bmir" Text="BMI Ranges" BadgeText="B"></DxTreeViewNode>
+						<DxTreeViewNode NavigateUrl="tt" Text="Şablonlar" BadgeText="Ş"></DxTreeViewNode>
+						<DxTreeViewNode NavigateUrl="tg" Text="Etiketler" BadgeText="E"></DxTreeViewNode>
+						<DxTreeViewNode NavigateUrl="yedek" Text="Yedek" BadgeText="Y"></DxTreeViewNode>
+				}
+		</Nodes>
 </DxTreeView>
 
 @code{

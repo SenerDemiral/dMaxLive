@@ -269,14 +269,11 @@ namespace DataLibrary
                 }
             }
         }
-
-
+        
         public async Task<MemoryStream> KtCSV(int DtID)
         {
-
             string sql = $"select * from KT where DtID = {DtID}";
             List<KTmodel> data = await LoadData<KTmodel, dynamic>(sql, new { });
-            //using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
 
             StringBuilder sb = new StringBuilder();
 
@@ -303,16 +300,14 @@ namespace DataLibrary
                 sb.AppendLine();
             }
 
-            //MemoryStream stream = new MemoryStream();
             //FileStream stream = new FileStream("C:\\Net5.0\\sener.csv", FileMode.Create);
             //using (var writer = new StreamWriter(stream, System.Text.Encoding.UTF8))
             //{
             //    writer.Write(sb.ToString());
             //}
 
-            //using 
+            //using calismiyor
             var ms = new MemoryStream();
-            //using 
             var writer = new StreamWriter(ms, Encoding.UTF8);
 
             writer.Write(sb.ToString());
@@ -321,5 +316,43 @@ namespace DataLibrary
             return ms;
         }
 
+        public async Task<MemoryStream> KhCSV(int DtID)
+        {
+            string sql = $"select * from KH where DtID = {DtID}";
+            List<KHmodel> data = await LoadData<KHmodel, dynamic>(sql, new { });
+
+            StringBuilder sb = new StringBuilder();
+
+            //sb.Append('\uFEFF');    // U+FEFF is the byte-order mark (BOM) character
+            sb.Append("ID,KtID,EXD,Info");
+            sb.AppendLine();
+
+            foreach (var row in data)
+            {
+                sb.Append($"{row.KhID}");
+                sb.Append(",");
+                sb.Append($"{row.KtID}");
+                sb.Append(",");
+                sb.Append($"{row.EXD:dd.MM.yyyy}");
+                sb.Append(",");
+                sb.Append($"\"{row.Info?.Replace("\"", "\"\"")}\"");
+                sb.AppendLine();
+            }
+
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms, Encoding.UTF8);
+
+            writer.Write(sb.ToString());
+            writer.Flush();
+            ms.Position = 0;
+            return ms;
+        }
+        public DTmodel GetDTrec(int DtID)
+				{
+            using (IDbConnection connection = new FbConnection(connectionString))
+            {
+                return connection.QueryFirstOrDefault<DTmodel>($"select * from DT where DtID = {DtID}");
+            }
+        }
     }
 }

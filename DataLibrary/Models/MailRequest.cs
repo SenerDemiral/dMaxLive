@@ -19,6 +19,7 @@ namespace DataLibrary.Models
     public class MailAttachment
 		{
         public string Name { get; set; }
-        public MemoryStream Attachment { get; set; }
+        public byte[] Attachment { get; set; }
+        //public MemoryStream AttachmenMS { get; set; }
     }
 }

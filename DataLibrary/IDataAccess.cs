@@ -26,5 +26,7 @@ namespace DataLibrary
         void MyTableFieldsCopy<T, U>(T src, U dst, IDictionary<string, object> newValue);
 
         Task<MemoryStream> KtCSV(int DtID);
+        Task<MemoryStream> KhCSV(int DtID);
+        DTmodel GetDTrec(int DtID);
     }
 }
